@@ -4,6 +4,8 @@ Gestion des transactions immobilières
 
 Backend : Spring boot
 
+Frontend web : ReactJs, HTML, css..
+
 Frontend mobile : React Native, API Google maps
 
 Database : Postgres, Postgis
