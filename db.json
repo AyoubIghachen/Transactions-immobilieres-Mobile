@@ -15,5 +15,19 @@
   ],
   "profile": {
     "name": "typicode"
-  }
+  },
+  "markers": [
+    {
+      "id": 1,
+      "price": "1000",
+      "surface": "84 m2",
+      "description": "Same description",
+      "typeBien": "Villa",
+      "typeOperation": "Louer",
+      "coordinate": {
+        "latitude": 33.54444563102639, 
+        "longitude": -7.643470242619514
+      }
+    }
+  ]
 }

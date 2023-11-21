@@ -24,7 +24,7 @@ export default function ({ navigation }) {
         <Section>
           <SectionContent>
             <Text fontWeight="bold" style={{ textAlign: "center" }}>
-              Bienvenu
+              Welcome in the app !
             </Text>
             <Button
               style={{ marginTop: 10 }}
@@ -33,19 +33,9 @@ export default function ({ navigation }) {
               onPress={() => Linking.openURL("https://rapi-ui.kikiding.space/")}
             />
             <Button
-              text="Liste des Annonces"
+              text="Voir les Annonces"
               onPress={() => {
-                navigation.navigate("SecondScreen");
-              }}
-              style={{
-                marginTop: 10,
-              }}
-            />
-
-            <Button
-              text="Mes Demandes"
-              onPress={() => {
-                navigation.navigate("SecondScreen");
+                navigation.navigate("AllAnnonces");
               }}
               style={{
                 marginTop: 10,

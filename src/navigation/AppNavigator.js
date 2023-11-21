@@ -8,8 +8,8 @@ import TabBarIcon from "../components/utils/TabBarIcon";
 import TabBarText from "../components/utils/TabBarText";
 
 import Home from "../screens/Home";
-import SecondScreen from "../screens/SecondScreen";
-import About from "../screens/About";
+import AllAnnonces from "../screens/AllAnnonces";
+import AjouterAnnonce from "../screens/AjouterAnnonce";
 import Profile from "../screens/Profile";
 import Demande from "../screens/Demande";
 
@@ -22,7 +22,7 @@ const Main = () => {
       }}
     >
       <MainStack.Screen name="MainTabs" component={MainTabs} />
-      <MainStack.Screen name="SecondScreen" component={SecondScreen} />
+      <MainStack.Screen name="AllAnnonces" component={AllAnnonces} />
     </MainStack.Navigator>
   );
 };
@@ -54,8 +54,8 @@ const MainTabs = () => {
         }}
       />
       <Tabs.Screen
-        name="About"
-        component={About}
+        name="AjouterAnnonce"
+        component={AjouterAnnonce}
         options={{
           tabBarLabel: ({ focused }) => (
             <TabBarText focused={focused} title="Ajouter annonce" />
@@ -71,7 +71,7 @@ const MainTabs = () => {
         component={Demande}
         options={{
           tabBarLabel: ({ focused }) => (
-            <TabBarText focused={focused} title="Ajouter demande" />
+            <TabBarText focused={focused} title="Mes demandes" />
           ),
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} icon={"paper-plane"} />
