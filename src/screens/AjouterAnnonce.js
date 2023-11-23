@@ -1,4 +1,3 @@
-// Import the necessary dependencies
 import { Layout } from 'react-native-rapi-ui';
 import React, { useState, useEffect } from 'react';
 import MapView, { Marker, Callout } from 'react-native-maps';
@@ -7,6 +6,9 @@ import * as Location from 'expo-location';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from 'expo-image-picker';
+import { ScrollView } from 'react-native';
+import { firebase } from '../config';
+
 
 export default function ({ navigation }) {
   const [markers, setMarkers] = useState([]);
@@ -19,22 +21,39 @@ export default function ({ navigation }) {
   const [addMarker, setAddMarker] = useState(false);
   const [typeBien, setTypeBien] = useState("");
   const [typeOperation, setTypeOperation] = useState("");
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState("");
+  const [intermidiaireID, setIntermidiaireID] = useState("");
+  const [citoyenId, setCitoyenId] = useState("");
+  const [date_annnonce, setDate_annnonce] = useState(new Date());
+  const [status, setStatus] = useState("");
+  const [motif, setMotif] = useState("");
+  const [delai, setDelai] = useState(0);
+  const [Declaree, setDeclaree] = useState("");
+  const [AnnonceId, setAnnonceId] = useState("");
 
   useEffect(() => {
-    // Fetch announcements from the backend when the component mounts
     fetchAnnouncements();
-    // Request location permissions and get current position
     getLocation();
   }, []);
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch("http://localhost:3002/annonce");
-      const data = await response.json();
+      const response = await fetch("http://192.168.43.59:3002/annonce");
+      let data = await response.json();
+
+      // Adjust the structure of the markers
+      data = data.map(marker => ({
+        coordinate: {
+          latitude: marker.latitude,
+          longitude: marker.longitude,
+        },
+        // Copy other properties of the marker
+        ...marker,
+      }));
+
       setMarkers(data);
     } catch (error) {
-      console.error("Error fetching announcements:", error);
+      console.error(error);
     }
   };
 
@@ -59,18 +78,29 @@ export default function ({ navigation }) {
     }
   };
 
+
   const handleMapPress = (event) => {
     if (!addMarker) {
       return;
     }
     setVisible(true);
+
+    console.log(event.nativeEvent.coordinate); // Add this line
+
     const newMarker = {
-      coordinate: event.nativeEvent.coordinate,
+      coordinate: {
+        latitude: event.nativeEvent.coordinate.latitude,
+        longitude: event.nativeEvent.coordinate.longitude,
+      },
+      //coordinate: event.nativeEvent.coordinate,
       type: "",
     };
-    setMarkers([...markers, newMarker]);
+    setMarkers((currentMarkers) => [...currentMarkers, newMarker]);
+    //setMarkers([...markers, newMarker]);
     setMapKey(Math.random().toString());
   };
+
+
 
   const handleMarkerPress = (marker) => {
     console.log(marker);
@@ -78,47 +108,70 @@ export default function ({ navigation }) {
 
   const handleSubmit = async () => {
     try {
-      const formData = new FormData();
-      formData.append('PrixBien', price);
-      formData.append('Surface_Bien', surface);
-      formData.append('Description', description);
-      formData.append('type_Bien', typeBien);
-      formData.append('type_operation', typeOperation);
-      formData.append('coordinate', JSON.stringify(markers[markers.length - 1].coordinate));
-      formData.append('photo', image);
-
-      // Use the appropriate endpoint for creating an announcement
-      const response = await fetch("http://localhost:3002/annonce", {
-        method: "POST",
-        body: formData,
+      const response = await fetch("http://192.168.43.59:3002/annonce", { // replace with your actual API endpoint
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          intermidiaireID,
+          citoyenId,
+          date_annnonce,
+          status,
+          motif,
+          delai,
+          photo: image,
+          type_operation: typeOperation,
+          type_Bien: typeBien,
+          surface_Bien: surface,
+          prixBien: price,
+          description: description,
+          Declaree,
+          AnnonceId,
+          latitude: region.latitude,
+          longitude: region.longitude,
+        }),
       });
-
+      
       if (response.ok) {
-        console.log("Announcement created successfully");
-        fetchAnnouncements(); // Fetch updated list of announcements
-        setVisible(false);
-        setPrice('');
-        setSurface('');
-        setDescription('');
-        setTypeBien('');
-        setTypeOperation('');
-        setImage(null);
+        console.log('Announcement added successfully');
+        // Create a new marker
+        const newMarker = {
+          Declaree,
+          AnnonceId,
+          latitude: region.latitude,
+          longitude: region.longitude,
+        };
+        // Add the new marker to the markers
+        setMarkers([...markers, newMarker]);
+        handleCancel(); // reset the form fields and close the modal
       } else {
-        console.error("Failed to create announcement");
+        console.error('Error adding announcement:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error("Error creating announcement:", error);
+      console.error(error);
     }
   };
 
   const handleCancel = () => {
-    setVisible(false);
-    setPrice("");
-    setSurface("");
-    setDescription("");
-    setTypeBien("");
+    setIntermidiaireID("");
+    setCitoyenId("");
+    setStatus("");
+    setMotif("");
+    setDelai(0);
+    setImage("");
     setTypeOperation("");
+    setTypeBien("");
+    setSurface("");
+    setPrice("");
+    setDescription("");
+    setDeclaree("");
+    setAnnonceId("");
+    setVisible(false);
   };
+
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -129,125 +182,202 @@ export default function ({ navigation }) {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+
+      const ref = firebase.storage().ref().child(new Date().getTime().toString());
+      const snapshot = await ref.put(blob);
+
+      const url = await snapshot.ref.getDownloadURL();
+      setImage(url);
     }
   };
 
+  //console.log(markers);
+
   return (
     <Layout>
-      <View style={styles.container}>
-        <MapView
-          key={mapKey}
-          style={styles.map}
-          onPress={handleMapPress}
-          region={region}
+      <MapView
+        key={mapKey}
+        style={styles.map}
+        onPress={handleMapPress}
+        region={region}
+      >
+        {markers.map((marker, index) => {
+          if (marker.coordinate && marker.coordinate.latitude && marker.coordinate.longitude) {
+            return (
+              <Marker
+                key={index}
+                coordinate={marker.coordinate}
+                pinColor={marker.type === "sell" ? "red" : "blue"}
+                onPress={() => handleMarkerPress(marker)}
+              >
+                <Callout tooltip>
+                  <View>
+                    <View style={styles.bubble}>
+                      <Text style={styles.name}>{marker.type_Bien}</Text>
+                      <Text>{marker.description}</Text>
+                      {marker.photo && (
+                        <Image
+                          style={styles.image}
+                          source={{
+                            uri: marker.photo,
+                          }}
+                        />
+                      )}
+                    </View>
+                  </View>
+                </Callout>
+              </Marker>
+            );
+          } else {
+            console.warn(`Marker ${index} does not have a valid coordinate.`);
+          }
+        })}
+      </MapView>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, { width: "45%" }]}
+          onPress={() => setAddMarker(!addMarker)}
         >
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              coordinate={marker.coordinate}
-              pinColor={marker.type === "sell" ? "red" : "blue"}
-              onPress={() => handleMarkerPress(marker)}
-            >
-              <Callout>
-                <View>
-                  <Text>Price: {marker.price}</Text>
-                  <Text>Surface: {marker.surface}</Text>
-                  <Text>Description: {marker.description}</Text>
-                  <Text>Type de bien: {marker.typeBien}</Text>
-                  <Text>Type d'opération: {marker.typeOperation}</Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
-        </MapView>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, { width: "45%" }]}
-            onPress={() => setAddMarker(!addMarker)}
-          >
-            <FontAwesome
-              name={addMarker ? "times" : "plus"}
-              size={24}
-              color="white"
-            />
-            <Text style={styles.buttonText}>
-              {addMarker ? "Annuler" : "Localiser"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <Modal visible={visible} animationType="slide">
-          <View style={[styles.form, { flex: 1 }]}>
-            <TextInput
-              style={styles.input}
-              placeholder="Prix"
-              value={price}
-              onChangeText={setPrice}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Surface_bien"
-              value={surface}
-              onChangeText={setSurface}
-            />
-            <Picker
-              selectedValue={typeBien}
-              onValueChange={(itemValue) => setTypeBien(itemValue)}
-              style={styles.input}
-            >
-              <Picker.Item label="Appartement" value="appartement" />
-              <Picker.Item label="Terrain" value="terrain" />
-            </Picker>
-            <Picker
-              selectedValue={typeOperation}
-              onValueChange={(itemValue) => setTypeOperation(itemValue)}
-              style={styles.input}
-            >
-              <Picker.Item label="Vente" value="vente" />
-              <Picker.Item label="Louer" value="louer" />
-            </Picker>
-            <TextInput
-              style={[styles.input, { height: 100 }]}
-              placeholder="Description"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={4}
-            />
+          <FontAwesome
+            name={addMarker ? "times" : "plus"}
+            size={24}
+            color="white"
+          />
+          <Text style={styles.buttonText}>
+            {addMarker ? "Annuler" : "Localiser"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={visible}
+        onRequestClose={() => {
+          setVisible(!visible);
+        }}
+      >
+        <ScrollView>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>Add a new announcement</Text>
+              <TextInput
+                placeholder="Intermidiaire ID"
+                style={styles.modalText}
+                onChangeText={setIntermidiaireID}
+                value={intermidiaireID.toString()}
+              />
+              <TextInput
+                placeholder="Citoyen ID"
+                style={styles.modalText}
+                onChangeText={setCitoyenId}
+                value={citoyenId.toString()}
+              />
+              <TextInput
+                placeholder="Status"
+                style={styles.modalText}
+                onChangeText={setStatus}
+                value={status}
+              />
+              <TextInput
+                placeholder="Motif"
+                style={styles.modalText}
+                onChangeText={setMotif}
+                value={motif}
+              />
+              <TextInput
+                placeholder="Delai"
+                style={styles.modalText}
+                onChangeText={setDelai}
+                value={delai.toString()}
+              />
+              <TextInput
+                placeholder="Declaree"
+                style={styles.modalText}
+                onChangeText={setDeclaree}
+                value={Declaree}
+              />
+              <TextInput
+                placeholder="Annonce ID"
+                style={styles.modalText}
+                onChangeText={setAnnonceId}
+                value={AnnonceId}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Prix"
+                value={price.toString()}
+                onChangeText={setPrice}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Surface_bien"
+                value={surface.toString()}
+                onChangeText={setSurface}
+              />
+              <Picker
+                selectedValue={typeBien}
+                onValueChange={(itemValue) => setTypeBien(itemValue)}
+                style={styles.input}
+              >
+                <Picker.Item label="Appartement" value="appartement" />
+                <Picker.Item label="Terrain" value="terrain" />
+              </Picker>
+              <Picker
+                selectedValue={typeOperation}
+                onValueChange={(itemValue) => setTypeOperation(itemValue)}
+                style={styles.input}
+              >
+                <Picker.Item label="Vente" value="vente" />
+                <Picker.Item label="Louer" value="louer" />
+              </Picker>
+              <TextInput
+                style={[styles.input, { height: 100 }]}
+                placeholder="Description"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={4}
+              />
 
-            <TouchableOpacity
-              style={[styles.button, { width: '53%' }]}
-              onPress={pickImage}
-            >
-              <Text style={styles.buttonText}>Choisir une image</Text>
-            </TouchableOpacity>
-            {image && (
-              <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-            )}
-
-            <View
-              style={[styles.buttonContainer, { justifyContent: "flex-end" }]}
-            >
               <TouchableOpacity
-                style={[styles.button, { width: "45%" }]}
+                style={[styles.button, { width: '53%' }]}
+                onPress={pickImage}
+              >
+                <Text style={styles.buttonText}>Choisir une image</Text>
+              </TouchableOpacity>
+              {image && (
+                <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+              )}
+
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
                 onPress={handleSubmit}
               >
-                <Text style={styles.buttonText}>Envoyer</Text>
+                <Text style={styles.textStyle}>Add Announcement</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
-                style={[styles.button, { width: "45%" }]}
+                style={{ ...styles.openButton, backgroundColor: "#f44336" }}
                 onPress={handleCancel}
               >
-                <Text style={styles.buttonText}>Annuler</Text>
+                <Text style={styles.textStyle}>Cancel</Text>
               </TouchableOpacity>
+
             </View>
           </View>
-        </Modal>
-      </View>
+        </ScrollView>
+      </Modal>
+      <FontAwesome
+        name="plus"
+        size={24}
+        color="black"
+        onPress={() => setVisible(true)}
+        style={styles.fab}
+      />
     </Layout>
   );
-}
+};
 
 
 
