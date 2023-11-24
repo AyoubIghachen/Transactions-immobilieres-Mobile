@@ -13,23 +13,24 @@ import { firebase } from '../config';
 export default function ({ navigation }) {
   const [markers, setMarkers] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [price, setPrice] = useState("");
-  const [surface, setSurface] = useState("");
-  const [description, setDescription] = useState("");
   const [mapKey, setMapKey] = useState("");
   const [region, setRegion] = useState(null);
   const [addMarker, setAddMarker] = useState(false);
-  const [typeBien, setTypeBien] = useState("");
-  const [typeOperation, setTypeOperation] = useState("");
-  const [image, setImage] = useState("");
-  const [intermidiaireID, setIntermidiaireID] = useState("");
-  const [citoyenId, setCitoyenId] = useState("");
-  const [date_annnonce, setDate_annnonce] = useState(new Date());
-  const [status, setStatus] = useState("");
-  const [motif, setMotif] = useState("");
-  const [delai, setDelai] = useState(0);
-  const [Declaree, setDeclaree] = useState("");
-  const [AnnonceId, setAnnonceId] = useState("");
+  const [id, setId] = useState(null);
+  const [longitude, setLongitude] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [surface, setSurface] = useState("");
+  const [type_bien, setType_bien] = useState("");
+  const [prix_bien, setPrix_bien] = useState("");
+  const [date_annonce, setDate_annonce] = useState(new Date());
+  const [statut, setStatut] = useState("");
+  const [type_operation, setType_operation] = useState("");
+  const [description, setDescription] = useState("");
+  const [motif_rejet, setMotif_rejet] = useState("");
+  const [delai, setDelai] = useState("");
+  const [etat, setEtat] = useState("");
+  const [intermediaire_id, setIntermediaire_id] = useState("");
+  const [photo, setPhoto] = useState("");
 
   useEffect(() => {
     fetchAnnouncements();
@@ -38,14 +39,14 @@ export default function ({ navigation }) {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch("http://192.168.43.59:3002/annonce");
+      const response = await fetch("http://192.168.43.59:3002/annonces");
       let data = await response.json();
 
       // Adjust the structure of the markers
       data = data.map(marker => ({
         coordinate: {
-          latitude: marker.latitude,
-          longitude: marker.longitude,
+          latitude: parseFloat(marker.latitude),
+          longitude: parseFloat(marker.longitude),
         },
         // Copy other properties of the marker
         ...marker,
@@ -103,48 +104,76 @@ export default function ({ navigation }) {
 
 
   const handleMarkerPress = (marker) => {
-    console.log(marker);
+    setId(marker.id);
+    setLongitude(marker.longitude);
+    setLatitude(marker.latitude);
+    setSurface(marker.surface);
+    setType_bien(marker.type_bien);
+    setPrix_bien(marker.prix_bien);
+    setDate_annonce(marker.date_annonce);
+    setStatut(marker.statut);
+    setType_operation(marker.type_operation);
+    setDescription(marker.description);
+    setMotif_rejet(marker.motif_rejet);
+    setDelai(marker.delai);
+    setEtat(marker.etat);
+    setIntermediaire_id(marker.intermediaire_id);
+    setPhoto(marker.photo);
+    setVisible(true);
   };
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://192.168.43.59:3002/annonce", { // replace with your actual API endpoint
+      const response = await fetch("http://192.168.43.59:3002/annonces", { // replace with your actual API endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          intermidiaireID,
-          citoyenId,
-          date_annnonce,
-          status,
-          motif,
-          delai,
-          photo: image,
-          type_operation: typeOperation,
-          type_Bien: typeBien,
-          surface_Bien: surface,
-          prixBien: price,
+          intermediaire_id: intermediaire_id,
+          date_annonce: date_annonce,
+          statut: statut,
+          motif_rejet: motif_rejet,
+          delai: delai,
+          etat: etat,
+          photo: photo,
+          type_operation: type_operation,
+          type_bien: type_bien,
+          surface: surface,
+          prix_bien: prix_bien,
           description: description,
-          Declaree,
-          AnnonceId,
           latitude: region.latitude,
           longitude: region.longitude,
         }),
       });
-      
+
       if (response.ok) {
-        console.log('Announcement added successfully');
-        // Create a new marker
-        const newMarker = {
-          Declaree,
-          AnnonceId,
-          latitude: region.latitude,
-          longitude: region.longitude,
-        };
-        // Add the new marker to the markers
-        setMarkers([...markers, newMarker]);
+        if (region && typeof region.latitude === 'number' && typeof region.longitude === 'number') {
+          console.log('Announcement added successfully');
+          // Create a new marker
+          const newMarker = {
+            id,
+            latitude: region.latitude,
+            longitude: region.longitude,
+            surface,
+            type_bien,
+            prix_bien,
+            date_annonce,
+            statut,
+            type_operation,
+            description,
+            motif_rejet,
+            delai,
+            etat,
+            intermediaire_id,
+            photo,
+          };
+          // Add the new marker to the markers
+          setMarkers([...markers, newMarker]);
+        } else {
+          console.error('Invalid region:', region);
+        }
         handleCancel(); // reset the form fields and close the modal
       } else {
         console.error('Error adding announcement:', response.status, response.statusText);
@@ -155,19 +184,21 @@ export default function ({ navigation }) {
   };
 
   const handleCancel = () => {
-    setIntermidiaireID("");
-    setCitoyenId("");
-    setStatus("");
-    setMotif("");
-    setDelai(0);
-    setImage("");
-    setTypeOperation("");
-    setTypeBien("");
+    setId(null);
+    setLongitude("");
+    setLatitude("");
     setSurface("");
-    setPrice("");
+    setType_bien("");
+    setPrix_bien("");
+    setDate_annonce(new Date());
+    setStatut("");
+    setType_operation("");
     setDescription("");
-    setDeclaree("");
-    setAnnonceId("");
+    setMotif_rejet("");
+    setDelai("");
+    setEtat("");
+    setIntermediaire_id("");
+    setPhoto("");
     setVisible(false);
   };
 
@@ -189,7 +220,7 @@ export default function ({ navigation }) {
       const snapshot = await ref.put(blob);
 
       const url = await snapshot.ref.getDownloadURL();
-      setImage(url);
+      setPhoto(url);
     }
   };
 
@@ -200,7 +231,13 @@ export default function ({ navigation }) {
       <MapView
         key={mapKey}
         style={styles.map}
-        onPress={handleMapPress}
+        onPress={(e) => {
+          setRegion({
+            latitude: e.nativeEvent.coordinate.latitude,
+            longitude: e.nativeEvent.coordinate.longitude,
+          });
+          handleMapPress(e);
+        }}
         region={region}
       >
         {markers.map((marker, index) => {
@@ -209,13 +246,13 @@ export default function ({ navigation }) {
               <Marker
                 key={index}
                 coordinate={marker.coordinate}
-                pinColor={marker.type === "sell" ? "red" : "blue"}
+                pinColor={marker.type_bien === "VILLA" ? "red" : "blue"}
                 onPress={() => handleMarkerPress(marker)}
               >
                 <Callout tooltip>
                   <View>
                     <View style={styles.bubble}>
-                      <Text style={styles.name}>{marker.type_Bien}</Text>
+                      <Text style={styles.name}>{marker.type_bien}</Text>
                       <Text>{marker.description}</Text>
                       {marker.photo && (
                         <Image
@@ -261,79 +298,100 @@ export default function ({ navigation }) {
         <ScrollView>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={styles.modalText}>Add a new announcement</Text>
+              <Text style={styles.modalTitle}>Ajouter une annonce</Text>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Intermediaire ID:</Text>
+                <TextInput
+                  placeholder="ID"
+                  style={styles.input2}
+                  onChangeText={setIntermediaire_id}
+                  value={intermediaire_id.toString()}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Delai:</Text>
+                <TextInput
+                  placeholder="Delai"
+                  style={styles.input2}
+                  onChangeText={(value) => setDelai(Number(value))}
+                  value={delai.toString()}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Prix:</Text>
+                <TextInput
+                  style={styles.input2}
+                  placeholder="Prix"
+                  value={prix_bien.toString()}
+                  onChangeText={setPrix_bien}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Surface:</Text>
+                <TextInput
+                  style={styles.input2}
+                  placeholder="Surface_bien"
+                  value={surface.toString()}
+                  onChangeText={setSurface}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Type de bien:</Text>
+                <Picker
+                  selectedValue={type_bien}
+                  onValueChange={(itemValue) => setType_bien(itemValue)}
+                  style={styles.input}
+                >
+                  <Picker.Item label="MAISON" value="MAISON" color="#0000FF" />
+                  <Picker.Item label="VILLA" value="VILLA" color="#008000" />
+                  <Picker.Item label="APPARTEMENT" value="APPARTEMENT" color="#FFA500" />
+                </Picker>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Type d'opération:</Text>
+                <Picker
+                  selectedValue={type_operation}
+                  onValueChange={(itemValue) => setType_operation(itemValue)}
+                  style={styles.input}
+                >
+                  <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
+                  <Picker.Item label="LOUER" value="LOUER" color="#008000" />
+                </Picker>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Etat:</Text>
+                <Picker
+                  selectedValue={etat}
+                  onValueChange={(itemValue) => setEtat(itemValue)}
+                  style={styles.input}
+                >
+                  <Picker.Item label="NULL" value="" color="#FFA500"/>
+                  <Picker.Item label="PUBLIEE" value="PUBLIEE" color="#0000FF" />
+                  <Picker.Item label="REJETER" value="REJETER" color="#008000" />
+                </Picker>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Statut:</Text>
+                <Picker
+                  selectedValue={statut}
+                  onValueChange={(itemValue) => setStatut(itemValue)}
+                  style={styles.input}
+                >
+                  <Picker.Item label="RESERVEE" value="RESERVEE" color="#0000FF" />
+                  <Picker.Item label="EN_ATTENTE" value="EN_ATTENTE" color="#008000" />
+                </Picker>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Motif de rejet:</Text>
+                <TextInput
+                  placeholder="Motif_rejet"
+                  style={styles.input2}
+                  onChangeText={setMotif_rejet}
+                  value={motif_rejet}
+                />
+              </View>
               <TextInput
-                placeholder="Intermidiaire ID"
-                style={styles.modalText}
-                onChangeText={setIntermidiaireID}
-                value={intermidiaireID.toString()}
-              />
-              <TextInput
-                placeholder="Citoyen ID"
-                style={styles.modalText}
-                onChangeText={setCitoyenId}
-                value={citoyenId.toString()}
-              />
-              <TextInput
-                placeholder="Status"
-                style={styles.modalText}
-                onChangeText={setStatus}
-                value={status}
-              />
-              <TextInput
-                placeholder="Motif"
-                style={styles.modalText}
-                onChangeText={setMotif}
-                value={motif}
-              />
-              <TextInput
-                placeholder="Delai"
-                style={styles.modalText}
-                onChangeText={setDelai}
-                value={delai.toString()}
-              />
-              <TextInput
-                placeholder="Declaree"
-                style={styles.modalText}
-                onChangeText={setDeclaree}
-                value={Declaree}
-              />
-              <TextInput
-                placeholder="Annonce ID"
-                style={styles.modalText}
-                onChangeText={setAnnonceId}
-                value={AnnonceId}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Prix"
-                value={price.toString()}
-                onChangeText={setPrice}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Surface_bien"
-                value={surface.toString()}
-                onChangeText={setSurface}
-              />
-              <Picker
-                selectedValue={typeBien}
-                onValueChange={(itemValue) => setTypeBien(itemValue)}
-                style={styles.input}
-              >
-                <Picker.Item label="Appartement" value="appartement" />
-                <Picker.Item label="Terrain" value="terrain" />
-              </Picker>
-              <Picker
-                selectedValue={typeOperation}
-                onValueChange={(itemValue) => setTypeOperation(itemValue)}
-                style={styles.input}
-              >
-                <Picker.Item label="Vente" value="vente" />
-                <Picker.Item label="Louer" value="louer" />
-              </Picker>
-              <TextInput
-                style={[styles.input, { height: 100 }]}
+                style={[styles.inputDescription, { height: 100 }]}
                 placeholder="Description"
                 value={description}
                 onChangeText={setDescription}
@@ -342,27 +400,29 @@ export default function ({ navigation }) {
               />
 
               <TouchableOpacity
-                style={[styles.button, { width: '53%' }]}
+                style={[styles.buttonText1, { width: '53%' }]}
                 onPress={pickImage}
               >
-                <Text style={styles.buttonText}>Choisir une image</Text>
+                <Text style={styles.textStyle1}>Choisir une image</Text>
               </TouchableOpacity>
-              {image && (
-                <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+              {photo && (
+                <Image source={{ uri: photo }} style={{ width: 200, height: 200 }} />
               )}
 
-              <TouchableOpacity
-                style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                onPress={handleSubmit}
-              >
-                <Text style={styles.textStyle}>Add Announcement</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ ...styles.openButton, backgroundColor: "#f44336" }}
-                onPress={handleCancel}
-              >
-                <Text style={styles.textStyle}>Cancel</Text>
-              </TouchableOpacity>
+              <View style={styles.twoButtonContainer}>
+                <TouchableOpacity
+                  style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+                  onPress={handleSubmit}
+                >
+                  <Text style={styles.textStyle}>Ajouter</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ ...styles.openButton, backgroundColor: "#f44336" }}
+                  onPress={handleCancel}
+                >
+                  <Text style={styles.textStyle}>Retourner</Text>
+                </TouchableOpacity>
+              </View>
 
             </View>
           </View>
@@ -384,6 +444,7 @@ export default function ({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5F5F5',
   },
   map: {
     flex: 1,
@@ -392,15 +453,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     padding: 20,
   },
-  input: {
+  inputDescription: {
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: '#E0E0E0',
     padding: 10,
     marginVertical: 10,
     width: '100%',
+    borderRadius: 5,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    padding: 10,
+    borderRadius: 5,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -411,7 +480,7 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'green',
+    backgroundColor: '#4CAF50',
     padding: 10,
     margin: 15,
     borderRadius: 5,
@@ -422,11 +491,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  buttonText1: {
+    backgroundColor: "#4CAF50",
+    borderRadius: 30,
+    padding: 15,
+    elevation: 5,
+    width: 200,
+    marginVertical: 10,
+  },
+  textStyle1: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
   landingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'lightgreen',
+    backgroundColor: '#C8E6C9',
   },
   landingText: {
     fontSize: 24,
@@ -435,5 +517,72 @@ const styles = StyleSheet.create({
   },
   logo: {
     marginBottom: 20,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    width: 100,
+    marginLeft: 40,
+    marginRight: 40,
+    marginTop: 30,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#4CAF50',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+  twoButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  label: {
+    marginRight: 10,
+  },
+  input2: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    padding: 10,
+    borderRadius: 5,
+    marginLeft: 10,
   },
 });
