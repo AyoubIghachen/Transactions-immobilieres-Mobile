@@ -19,8 +19,8 @@ export default function ({ navigation }) {
       title: "Real Estate 1",
       description: "This is a real estate description",
       coordinate: {
-        latitude: 37.78825,
-        longitude: -122.4324,
+        latitude: 33.5731, // Casablanca
+        longitude: -7.5898,
       },
     },
     {
@@ -28,8 +28,8 @@ export default function ({ navigation }) {
       title: "Real Estate 2",
       description: "This is another real estate description",
       coordinate: {
-        latitude: 37.78925,
-        longitude: -122.4334,
+        latitude: 35.7595, // Tangier
+        longitude: -5.8340,
       },
     },
     {
@@ -37,8 +37,8 @@ export default function ({ navigation }) {
       title: "Real Estate 3",
       description: "This is yet another real estate description",
       coordinate: {
-        latitude: 37.79025,
-        longitude: -122.4344,
+        latitude: 33.8731, // Meknes
+        longitude: -5.5474,
       },
     },
     // Add more default items here
@@ -57,7 +57,7 @@ export default function ({ navigation }) {
     <Layout>
       {/* ... */}
       <TopNav
-        middleContent="Mes annonces"
+        middleContent="Annonces"
         leftContent={
           <Ionicons
             name="chevron-back"
