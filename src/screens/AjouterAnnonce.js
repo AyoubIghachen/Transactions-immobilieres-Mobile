@@ -37,6 +37,10 @@ export default function ({ navigation }) {
     getLocation();
   }, []);
 
+  useEffect(() => {
+    console.log(photo);
+  }, [photo]);
+
   const fetchAnnouncements = async () => {
     try {
       const response = await fetch("http://192.168.43.59:3002/annonces");
@@ -220,7 +224,8 @@ export default function ({ navigation }) {
       const snapshot = await ref.put(blob);
 
       const url = await snapshot.ref.getDownloadURL();
-      setPhoto(url);
+      // Append the new image name to the photo state
+      setPhoto(oldPhoto => oldPhoto ? `${oldPhoto};${url}` : url);
     }
   };
 
@@ -365,7 +370,7 @@ export default function ({ navigation }) {
                   onValueChange={(itemValue) => setEtat(itemValue)}
                   style={styles.input}
                 >
-                  <Picker.Item label="NULL" value="" color="#FFA500"/>
+                  <Picker.Item label="NULL" value="" color="#FFA500" />
                   <Picker.Item label="PUBLIEE" value="PUBLIEE" color="#0000FF" />
                   <Picker.Item label="REJETER" value="REJETER" color="#008000" />
                 </Picker>
