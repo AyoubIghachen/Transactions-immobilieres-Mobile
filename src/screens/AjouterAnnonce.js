@@ -37,10 +37,6 @@ export default function ({ navigation }) {
     getLocation();
   }, []);
 
-  useEffect(() => {
-    console.log(photo);
-  }, [photo]);
-
   const fetchAnnouncements = async () => {
     try {
       const response = await fetch("http://192.168.43.59:3002/annonces");
@@ -141,7 +137,7 @@ export default function ({ navigation }) {
           motif_rejet: motif_rejet,
           delai: delai,
           etat: etat,
-          photo: photo,
+          photo: photo.join(';'),
           type_operation: type_operation,
           type_bien: type_bien,
           surface: surface,
@@ -224,8 +220,8 @@ export default function ({ navigation }) {
       const snapshot = await ref.put(blob);
 
       const url = await snapshot.ref.getDownloadURL();
-      // Append the new image name to the photo state
-      setPhoto(oldPhoto => oldPhoto ? `${oldPhoto};${url}` : url);
+      // Append the new image URL to the photo state
+      setPhoto(oldPhoto => oldPhoto ? [...oldPhoto, url] : [url]);
     }
   };
 
@@ -410,9 +406,20 @@ export default function ({ navigation }) {
               >
                 <Text style={styles.textStyle1}>Choisir une image</Text>
               </TouchableOpacity>
-              {photo && (
-                <Image source={{ uri: photo }} style={{ width: 200, height: 200 }} />
-              )}
+
+              {photo && photo.map((url, index) => (
+                <View key={index} style={{ position: 'relative', marginBottom: 10 }}>
+                  <Image source={{ uri: url }} style={{ width: 200, height: 200 }} />
+                  <TouchableOpacity
+                    style={{ position: 'absolute', right: 0, top: 0 }}
+                    onPress={() => {
+                      setPhoto(oldPhoto => oldPhoto.filter((_, i) => i !== index));
+                    }}
+                  >
+                    <FontAwesome name="times" size={24} color="red" />
+                  </TouchableOpacity>
+                </View>
+              ))}
 
               <View style={styles.twoButtonContainer}>
                 <TouchableOpacity
