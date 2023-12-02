@@ -1,6 +1,7 @@
 import { Layout } from 'react-native-rapi-ui';
 import React, { useState, useEffect } from 'react';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView from "react-native-map-clustering";
+import { Marker } from "react-native-maps";
 import { StyleSheet, View, Modal, TextInput, Text, TouchableOpacity, Image } from 'react-native';
 import * as Location from 'expo-location';
 import { FontAwesome } from '@expo/vector-icons';
@@ -31,6 +32,7 @@ export default function ({ navigation }) {
   const [etat, setEtat] = useState("");
   const [intermediaire_id, setIntermediaire_id] = useState("");
   const [photo, setPhoto] = useState("");
+  const [selectedMarker, setSelectedMarker] = useState(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -44,12 +46,22 @@ export default function ({ navigation }) {
 
       // Adjust the structure of the markers
       data = data.map(marker => ({
+        id: marker.id,
         coordinate: {
-          latitude: parseFloat(marker.latitude),
-          longitude: parseFloat(marker.longitude),
+          latitude: marker.latitude ? parseFloat(marker.latitude) : 0,
+          longitude: marker.longitude ? parseFloat(marker.longitude) : 0,
         },
-        // Copy other properties of the marker
-        ...marker,
+        type_bien: marker.type_bien,
+        prix_bien: marker.prix_bien,
+        date_annonce: marker.date_annonce,
+        statut: marker.statut,
+        type_operation: marker.type_operation,
+        description: marker.description,
+        motif_rejet: marker.motif_rejet,
+        delai: marker.delai,
+        etat: marker.etat,
+        intermediaire_id: marker.intermediaire_id,
+        photo: marker.photo,
       }));
 
       setMarkers(data);
@@ -57,6 +69,7 @@ export default function ({ navigation }) {
       console.error(error);
     }
   };
+
 
   const getLocation = async () => {
     try {
@@ -80,6 +93,7 @@ export default function ({ navigation }) {
   };
 
 
+
   const handleMapPress = (event) => {
     if (!addMarker) {
       return;
@@ -87,40 +101,11 @@ export default function ({ navigation }) {
     setVisible(true);
 
     console.log(event.nativeEvent.coordinate); // Add this line
-
-    const newMarker = {
-      coordinate: {
-        latitude: event.nativeEvent.coordinate.latitude,
-        longitude: event.nativeEvent.coordinate.longitude,
-      },
-      //coordinate: event.nativeEvent.coordinate,
-      type: "",
-    };
-    setMarkers((currentMarkers) => [...currentMarkers, newMarker]);
-    //setMarkers([...markers, newMarker]);
-    setMapKey(Math.random().toString());
   };
 
 
 
-  const handleMarkerPress = (marker) => {
-    setId(marker.id);
-    setLongitude(marker.longitude);
-    setLatitude(marker.latitude);
-    setSurface(marker.surface);
-    setType_bien(marker.type_bien);
-    setPrix_bien(marker.prix_bien);
-    setDate_annonce(marker.date_annonce);
-    setStatut(marker.statut);
-    setType_operation(marker.type_operation);
-    setDescription(marker.description);
-    setMotif_rejet(marker.motif_rejet);
-    setDelai(marker.delai);
-    setEtat(marker.etat);
-    setIntermediaire_id(marker.intermediaire_id);
-    setPhoto(marker.photo);
-    setVisible(true);
-  };
+
 
   const handleSubmit = async () => {
     try {
@@ -154,8 +139,10 @@ export default function ({ navigation }) {
           // Create a new marker
           const newMarker = {
             id,
-            latitude: region.latitude,
-            longitude: region.longitude,
+            coordinate: {
+              latitude: region.latitude,
+              longitude: region.longitude,
+            },
             surface,
             type_bien,
             prix_bien,
@@ -171,6 +158,7 @@ export default function ({ navigation }) {
           };
           // Add the new marker to the markers
           setMarkers([...markers, newMarker]);
+          setMapKey(Math.random().toString());
         } else {
           console.error('Invalid region:', region);
         }
@@ -181,6 +169,7 @@ export default function ({ navigation }) {
     } catch (error) {
       console.error(error);
     }
+    setAddMarker(false);
   };
 
   const handleCancel = () => {
@@ -200,6 +189,7 @@ export default function ({ navigation }) {
     setIntermediaire_id("");
     setPhoto("");
     setVisible(false);
+    setAddMarker(false);
   };
 
 
@@ -236,10 +226,18 @@ export default function ({ navigation }) {
           setRegion({
             latitude: e.nativeEvent.coordinate.latitude,
             longitude: e.nativeEvent.coordinate.longitude,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
           });
           handleMapPress(e);
         }}
-        region={region}
+        region={
+          region || {
+            latitude: 0,
+            longitude: 0,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          }}
       >
         {markers.map((marker, index) => {
           if (marker.coordinate && marker.coordinate.latitude && marker.coordinate.longitude) {
@@ -248,24 +246,9 @@ export default function ({ navigation }) {
                 key={index}
                 coordinate={marker.coordinate}
                 pinColor={marker.type_bien === "VILLA" ? "red" : "blue"}
-                onPress={() => handleMarkerPress(marker)}
+                onPress={() => setSelectedMarker(marker)}
               >
-                <Callout tooltip>
-                  <View>
-                    <View style={styles.bubble}>
-                      <Text style={styles.name}>{marker.type_bien}</Text>
-                      <Text>{marker.description}</Text>
-                      {marker.photo && (
-                        <Image
-                          style={styles.image}
-                          source={{
-                            uri: marker.photo,
-                          }}
-                        />
-                      )}
-                    </View>
-                  </View>
-                </Callout>
+
               </Marker>
             );
           } else {
@@ -392,7 +375,7 @@ export default function ({ navigation }) {
                 />
               </View>
               <TextInput
-                style={[styles.inputDescription, { height: 100 }]}
+                style={[styles.inputDescription, { height: 100, width: 300 }]}
                 placeholder="Description"
                 value={description}
                 onChangeText={setDescription}
@@ -440,6 +423,55 @@ export default function ({ navigation }) {
           </View>
         </ScrollView>
       </Modal>
+
+      {selectedMarker && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={selectedMarker != null}
+          onRequestClose={() => {
+            setSelectedMarker(null);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+
+              <TouchableOpacity
+                style={{ position: 'absolute', right: 10, top: 10 }}
+                onPress={() => setSelectedMarker(null)}
+              >
+                <FontAwesome name="times" size={24} color="red" />
+              </TouchableOpacity>
+
+              <ScrollView style={styles.scrollView}>
+                <Text style={styles.titleText}>ID: {selectedMarker.id}</Text>
+                <Text style={styles.bodyText}>Type de bien: {selectedMarker.type_bien}</Text>
+                <Text style={styles.bodyText}>Delai: {selectedMarker.delai} Jour (s)</Text>
+                <Text style={styles.bodyText}>Prix: {selectedMarker.prix_bien} Dh</Text>
+                <Text style={styles.bodyText}>Surface: {selectedMarker.surface} m2</Text>
+                <Text style={styles.bodyText}>Type d'opération: {selectedMarker.type_operation}</Text>
+                <Text style={styles.bodyText}>Etat: {selectedMarker.etat}</Text>
+                <Text style={styles.bodyText}>Statut: {selectedMarker.statut}</Text>
+                <Text style={styles.bodyText}>Description: {selectedMarker.description}</Text>
+
+                {selectedMarker.photo && typeof selectedMarker.photo === 'string' && selectedMarker.photo.split(';').map((url, index) => (
+                  <View key={index} style={{ position: 'relative', marginBottom: 10, borderWidth: 2, borderColor: 'black' }}>
+                    <Image source={{ uri: url }} style={{ width: 200, height: 200 }} />
+                  </View>
+                ))}
+                {selectedMarker.photo && Array.isArray(selectedMarker.photo) && selectedMarker.photo.map((url, index) => (
+                  <View key={index} style={{ position: 'relative', marginBottom: 10, borderWidth: 2, borderColor: 'black' }}>
+                    <Image source={{ uri: url }} style={{ width: 200, height: 200 }} />
+                  </View>
+                ))}
+
+
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      )}
+
       <FontAwesome
         name="plus"
         size={24}
@@ -530,21 +562,6 @@ const styles = StyleSheet.create({
   logo: {
     marginBottom: 20,
   },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
   openButton: {
     backgroundColor: "#F194FF",
     borderRadius: 20,
@@ -596,5 +613,42 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginLeft: 10,
+  },
+  scrollView: {
+    padding: 10,
+  },
+  titleText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  bodyText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  closeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
