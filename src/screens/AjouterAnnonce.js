@@ -2,12 +2,11 @@ import { Layout } from 'react-native-rapi-ui';
 import React, { useState, useEffect } from 'react';
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
-import { StyleSheet, View, Modal, TextInput, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Modal, TextInput, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import * as Location from 'expo-location';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from 'expo-image-picker';
-import { ScrollView } from 'react-native';
 import { firebase } from '../config';
 
 
@@ -472,13 +471,7 @@ export default function ({ navigation }) {
         </Modal>
       )}
 
-      <FontAwesome
-        name="plus"
-        size={24}
-        color="black"
-        onPress={() => setVisible(true)}
-        style={styles.fab}
-      />
+      
     </Layout>
   );
 };
@@ -519,7 +512,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    marginVertical: 10,
   },
   button: {
     flexDirection: 'row',
