@@ -9,6 +9,7 @@ import TabBarText from "../components/utils/TabBarText";
 
 import Home from "../screens/Home";
 import AllAnnonces from "../screens/AllAnnonces";
+import DetailsScreen from '../screens/DetailsScreen';
 import AjouterAnnonce from "../screens/AjouterAnnonce";
 import Profile from "../screens/Profile";
 import Demande from "../screens/Demande";
@@ -23,6 +24,7 @@ const Main = () => {
     >
       <MainStack.Screen name="MainTabs" component={MainTabs} />
       <MainStack.Screen name="AllAnnonces" component={AllAnnonces} />
+      <MainStack.Screen name="Details" component={DetailsScreen} />
     </MainStack.Navigator>
   );
 };

@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { FlatList, TouchableOpacity, View } from "react-native";
+import { FlatList, TouchableOpacity, View, Button } from "react-native";
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
 import { Layout, Text, TopNav, themeColor, useTheme, } from "react-native-rapi-ui";
@@ -63,7 +63,7 @@ export default function ({ navigation }) {
   const handleEndReached = () => {
     const nextPage = currentPage;
     const nextSetOfAnnonces = allAnnonces.slice(nextPage * ITEMS_PER_PAGE, (nextPage + 1) * ITEMS_PER_PAGE);
-  
+
     if (nextSetOfAnnonces.length > 0) {
       setAnnonces(oldAnnonces => [...oldAnnonces, ...nextSetOfAnnonces]);
       setCurrentPage(nextPage + 1);
@@ -140,7 +140,7 @@ export default function ({ navigation }) {
         ))}
       </MapView>
 
-      <View style={{ flex: 1 }}>        
+      <View style={{ flex: 1 }}>
         <FlatList
           data={annonces}
           keyExtractor={(item, index) => item.id || String(index)} // Use index as a fallback
@@ -155,10 +155,15 @@ export default function ({ navigation }) {
                   borderBottomColor: "#ccc",
                 }}
               >
-                <Text>type: {item.type_bien} m²</Text>
+                <Text>Type: {item.type_bien}</Text>
                 <Text>Surface: {item.surface} m²</Text>
-                <Text>Prix: ${item.prix_bien}</Text>
+                <Text>Prix: {item.prix_bien} Dhs</Text>
                 <Text>Description: {item.description}</Text>
+
+                <Button
+                  title="Details"
+                  onPress={() => navigation.navigate('Details', { annonce: item })}
+                />
               </View>
             </TouchableOpacity>
           )}

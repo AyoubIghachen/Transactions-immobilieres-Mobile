@@ -446,8 +446,8 @@ export default function ({ navigation }) {
                 <Text style={styles.titleText}>ID: {selectedMarker.id}</Text>
                 <Text style={styles.bodyText}>Type de bien: {selectedMarker.type_bien}</Text>
                 <Text style={styles.bodyText}>Delai: {selectedMarker.delai} Jour (s)</Text>
-                <Text style={styles.bodyText}>Prix: {selectedMarker.prix_bien} Dh</Text>
-                <Text style={styles.bodyText}>Surface: {selectedMarker.surface} m2</Text>
+                <Text style={styles.bodyText}>Prix: {selectedMarker.prix_bien} Dhs</Text>
+                <Text style={styles.bodyText}>Surface: {selectedMarker.surface} m²</Text>
                 <Text style={styles.bodyText}>Type d'opération: {selectedMarker.type_operation}</Text>
                 <Text style={styles.bodyText}>Etat: {selectedMarker.etat}</Text>
                 <Text style={styles.bodyText}>Statut: {selectedMarker.statut}</Text>
