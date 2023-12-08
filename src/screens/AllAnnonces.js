@@ -3,17 +3,19 @@ import React, { useEffect, useState } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
-import { Layout, Text, TopNav, themeColor, useTheme,} from "react-native-rapi-ui";
+import { Layout, Text, TopNav, themeColor, useTheme, } from "react-native-rapi-ui";
 import FilterBar from "../components/utils/FilterBar";
 import * as Location from 'expo-location';
 
-
+const ITEMS_PER_PAGE = 50;
 
 export default function ({ navigation }) {
   const { isDarkmode } = useTheme();
   const [region, setRegion] = useState(null);
   const [annonces, setAnnonces] = useState([]);
   const [selectedAnnonce, setSelectedAnnonce] = useState(annonces[0]);
+  const [allAnnonces, setAllAnnonces] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
 
   useEffect(() => {
@@ -21,12 +23,13 @@ export default function ({ navigation }) {
     getLocation();
   }, []);
 
-
-
   const fetchAnnouncements = async () => {
     try {
       const response = await fetch("http://192.168.43.59:3002/annonces");
       let data = await response.json();
+
+      console.log(`Fetched ${data.length} items.`); // Add this line
+
 
       // Adjust the structure of the markers
       data = data.map(marker => ({
@@ -36,6 +39,7 @@ export default function ({ navigation }) {
           longitude: marker.longitude ? parseFloat(marker.longitude) : 0,
         },
         type_bien: marker.type_bien,
+        surface: marker.surface,
         prix_bien: marker.prix_bien,
         date_annonce: marker.date_annonce,
         statut: marker.statut,
@@ -48,10 +52,21 @@ export default function ({ navigation }) {
         photo: marker.photo,
       }));
 
-      setAnnonces(data);
-      setSelectedAnnonce(data[0]); // Set the first announcement as selected
+      setAllAnnonces(data);
+      setAnnonces(data.slice(0, ITEMS_PER_PAGE));
+      if (!selectedAnnonce) setSelectedAnnonce(data[0]); // Set the first announcement as selected
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleEndReached = () => {
+    const nextPage = currentPage;
+    const nextSetOfAnnonces = allAnnonces.slice(nextPage * ITEMS_PER_PAGE, (nextPage + 1) * ITEMS_PER_PAGE);
+  
+    if (nextSetOfAnnonces.length > 0) {
+      setAnnonces(oldAnnonces => [...oldAnnonces, ...nextSetOfAnnonces]);
+      setCurrentPage(nextPage + 1);
     }
   };
 
@@ -97,6 +112,7 @@ export default function ({ navigation }) {
       />
 
       <FilterBar />
+
       <MapView
         style={{ flex: 1 }}
         region={
@@ -124,15 +140,12 @@ export default function ({ navigation }) {
         ))}
       </MapView>
 
-
-      
-
-
-
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>        
         <FlatList
           data={annonces}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item.id || String(index)} // Use index as a fallback
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleAnnonceSelect(item)}>
               <View
@@ -142,14 +155,16 @@ export default function ({ navigation }) {
                   borderBottomColor: "#ccc",
                 }}
               >
-
-
                 <Text>type: {item.type_bien} m²</Text>
+                <Text>Surface: {item.surface} m²</Text>
                 <Text>Prix: ${item.prix_bien}</Text>
                 <Text>Description: {item.description}</Text>
               </View>
             </TouchableOpacity>
           )}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={21} // Try increasing this value
         />
       </View>
     </Layout>
