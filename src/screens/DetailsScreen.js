@@ -5,29 +5,34 @@ import AnnonceCard from "../components/utils/AnnonceCard";
 function DetailsScreen({ route, navigation }) {
     const { annonce } = route.params;
 
-    const handleDemander = () => {
-        fetch('http://192.168.43.59:3002/demandes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                annonce: annonce.id,
-                demandeur: 1,
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                alert('Demande sent successfully');
-                navigation.goBack();
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('Failed to send demande');
+    const handleDemander = async () => {
+        try {
+            const demandeResponse = await fetch('http://192.168.43.59:3002/demandes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    annonce: {
+                        id: annonce.id
+                    },
+                    demandeur: {
+                        id: 4 // modify when you implement auth
+                    }
+                })
             });
+
+            if (!demandeResponse.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            alert('Demande sent successfully');
+            navigation.goBack();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to send demande');
+        }
     };
 
     return (
