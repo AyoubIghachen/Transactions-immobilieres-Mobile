@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { FlatList, TouchableOpacity, View, Button } from "react-native";
+import { StyleSheet, FlatList, TouchableOpacity, View, Button, Image } from "react-native";
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
 import { Layout, Text, TopNav, themeColor, useTheme, } from "react-native-rapi-ui";
-import FilterBar from "../components/utils/FilterBar";
+import FilterBar from "../../components/utils/FilterBar";
 import * as Location from 'expo-location';
 
 const ITEMS_PER_PAGE = 50;
@@ -16,6 +16,7 @@ export default function ({ navigation }) {
   const [selectedAnnonce, setSelectedAnnonce] = useState(annonces[0]);
   const [allAnnonces, setAllAnnonces] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showMap, setShowMap] = useState(true);
 
 
   useEffect(() => {
@@ -100,7 +101,16 @@ export default function ({ navigation }) {
   return (
     <Layout>
       <TopNav
-        middleContent="Annonces"
+        middleContent="L'ensemble des annonces"
+        rightContent={
+          <TouchableOpacity onPress={() => setShowMap(!showMap)}>
+            <Ionicons
+              name={showMap ? "list-outline" : "map-outline"}
+              size={24}
+              color={isDarkmode ? themeColor.white100 : "#191921"}
+            />
+          </TouchableOpacity>
+        }
         leftContent={
           <Ionicons
             name="chevron-back"
@@ -113,34 +123,36 @@ export default function ({ navigation }) {
 
       <FilterBar />
 
-      <MapView
-        style={{ flex: 1 }}
-        region={
-          selectedAnnonce
-            ? {
-              latitude: selectedAnnonce.coordinate.latitude,
-              longitude: selectedAnnonce.coordinate.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }
-            : {
-              latitude: 0,
-              longitude: 0,
-              latitudeDelta: 0.1,
-              longitudeDelta: 0.1,
-            }
-        }
-      >
-        {annonces.map((annonce) => (
-          <Marker
-            key={annonce.id}
-            coordinate={annonce.coordinate}
-            description={annonce.description}
-          />
-        ))}
-      </MapView>
+      {showMap && (
+        <MapView
+          style={{ flex: 0.65 }}
+          region={
+            selectedAnnonce
+              ? {
+                latitude: selectedAnnonce.coordinate.latitude,
+                longitude: selectedAnnonce.coordinate.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }
+              : {
+                latitude: 0,
+                longitude: 0,
+                latitudeDelta: 0.1,
+                longitudeDelta: 0.1,
+              }
+          }
+        >
+          {annonces.map((annonce) => (
+            <Marker
+              key={annonce.id}
+              coordinate={annonce.coordinate}
+              description={annonce.description}
+            />
+          ))}
+        </MapView>
+      )}
 
-      <View style={{ flex: 1 }}>
+      <View style={styles.container}>
         <FlatList
           data={annonces}
           keyExtractor={(item, index) => item.id || String(index)} // Use index as a fallback
@@ -148,17 +160,20 @@ export default function ({ navigation }) {
           onEndReachedThreshold={0.5}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleAnnonceSelect(item)}>
-              <View
-                style={{
-                  padding: 10,
-                  borderBottomWidth: 1,
-                  borderBottomColor: "#ccc",
-                }}
-              >
-                <Text>Type: {item.type_bien}</Text>
-                <Text>Surface: {item.surface} m²</Text>
-                <Text>Prix: {item.prix_bien} Dhs</Text>
-                <Text>Description: {item.description}</Text>
+              <View style={styles.card}>
+                <Image
+                  style={styles.image}
+                  source={
+                    item.photo && item.photo.split(';')[0]
+                      ? { uri: item.photo.split(';')[0] }
+                      : { uri: 'https://placehold.co/200.png' }
+                  }
+                />
+
+                <Text style={styles.normalText}>Type: {item.type_bien}</Text>
+                <Text style={styles.normalText}>Surface: {item.surface} m²</Text>
+                <Text style={styles.normalText}>Prix: {item.prix_bien} Dhs</Text>
+                <Text style={styles.normalText}>Description: {item.description}</Text>
 
                 <Button
                   title="Details"
@@ -175,3 +190,36 @@ export default function ({ navigation }) {
     </Layout>
   );
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  card: {
+    padding: 10,
+    margin: 10,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  boldText: {
+    marginTop: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  normalText: {
+    marginTop: 5,
+    fontSize: 16,
+  },
+});

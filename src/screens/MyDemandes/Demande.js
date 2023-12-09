@@ -9,7 +9,7 @@ import {
   useTheme,
 } from "react-native-rapi-ui";
 import { Ionicons } from "@expo/vector-icons";
-import FilterBar from "../components/utils/FilterBar";
+import FilterBar from "../../components/utils/FilterBar";
 
 export default function ({ navigation }) {
   const { isDarkmode } = useTheme();

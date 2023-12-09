@@ -8,11 +8,14 @@ import TabBarIcon from "../components/utils/TabBarIcon";
 import TabBarText from "../components/utils/TabBarText";
 
 import Home from "../screens/Home";
-import AllAnnonces from "../screens/AllAnnonces";
-import DetailsScreen from '../screens/DetailsScreen';
+import AllAnnonces from "../screens/AllAnnonceScreens/AllAnnonces";
+import DetailsScreen from '../screens/AllAnnonceScreens/DetailsScreen';
 import AjouterAnnonce from "../screens/AjouterAnnonce";
 import Profile from "../screens/Profile";
-import Demande from "../screens/Demande";
+import Demande from "../screens/MyDemandes/Demande";
+import MyAnnonces from "../screens/MyAnnonceScreens/MyAnnonces";
+import DetailsMyAnnonces from '../screens/MyAnnonceScreens/DetailsMyAnnonces';
+import EditAnnonce from '../screens/MyAnnonceScreens/EditAnnonce';
 
 const MainStack = createNativeStackNavigator();
 const Main = () => {
@@ -25,6 +28,9 @@ const Main = () => {
       <MainStack.Screen name="MainTabs" component={MainTabs} />
       <MainStack.Screen name="AllAnnonces" component={AllAnnonces} />
       <MainStack.Screen name="Details" component={DetailsScreen} />
+      <MainStack.Screen name="MyAnnonces" component={MyAnnonces} />
+      <MainStack.Screen name="DetailsMyAnnonces" component={DetailsMyAnnonces} />
+      <MainStack.Screen name="EditAnnonce" component={EditAnnonce} />
     </MainStack.Navigator>
   );
 };

@@ -1,5 +1,5 @@
 import { Button, View, ScrollView, StyleSheet } from 'react-native';
-import AnnonceCard from "../components/utils/AnnonceCard";
+import AnnonceCard from "../../components/utils/AnnonceCard";
 
 
 function DetailsScreen({ route, navigation }) {

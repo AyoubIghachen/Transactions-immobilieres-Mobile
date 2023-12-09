@@ -40,6 +40,10 @@ export default function ({ navigation }) {
 
   const fetchAnnouncements = async () => {
     try {
+      //const annonceur_id = 2;
+      //const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${annonceur_id}`);
+
+
       const response = await fetch("http://192.168.43.59:3002/annonces");
       let data = await response.json();
 
@@ -108,7 +112,7 @@ export default function ({ navigation }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://192.168.43.59:3002/annonces", { // replace with your actual API endpoint
+      const response = await fetch("http://192.168.43.59:3002/annonces", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,6 +133,9 @@ export default function ({ navigation }) {
           description: description,
           latitude: region.latitude,
           longitude: region.longitude,
+          annonceur: {
+            id: 2 // modify when you implement auth
+          }
         }),
       });
 
@@ -471,7 +478,7 @@ export default function ({ navigation }) {
         </Modal>
       )}
 
-      
+
     </Layout>
   );
 };

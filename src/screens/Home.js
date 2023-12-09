@@ -43,6 +43,16 @@ export default function ({ navigation }) {
             />
 
             <Button
+              text="Mes Annonces"
+              onPress={() => {
+                navigation.navigate("MyAnnonces");
+              }}
+              style={{
+                marginTop: 10,
+              }}
+            />
+
+            <Button
               text={isDarkmode ? "Light Mode" : "Dark Mode"}
               status={isDarkmode ? "success" : "warning"}
               onPress={() => {
