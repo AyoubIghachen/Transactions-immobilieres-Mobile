@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import AuthContext from '../../AuthContext';
 import { StyleSheet, FlatList, TouchableOpacity, View, Button, Image } from "react-native";
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
@@ -11,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 const ITEMS_PER_PAGE = 50;
 
 export default function ({ navigation }) {
+    const { user } = useContext(AuthContext);
     const { isDarkmode } = useTheme();
     const [region, setRegion] = useState(null);
     const [annonces, setAnnonces] = useState([]);
@@ -29,7 +31,8 @@ export default function ({ navigation }) {
 
     const fetchAnnouncements = async () => {
         try {
-            const annonceur_id = 2;
+            const annonceur_id = user.id;
+            console.log(annonceur_id);
             const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${annonceur_id}`);
 
             let data = await response.json();

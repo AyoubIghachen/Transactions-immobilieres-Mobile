@@ -17,6 +17,14 @@ import MyAnnonces from "../screens/MyAnnonceScreens/MyAnnonces";
 import DetailsMyAnnonces from '../screens/MyAnnonceScreens/DetailsMyAnnonces';
 import EditAnnonce from '../screens/MyAnnonceScreens/EditAnnonce';
 
+import StartScreen from "../screens/AuthScreens/screens/StartScreen";
+import LoginScreen from "../screens/AuthScreens/screens/LoginScreen";
+import RegisterScreen from "../screens/AuthScreens/screens/RegisterScreen";
+import ResetPasswordScreen from "../screens/AuthScreens/screens/ResetPasswordScreen";
+import Dashboard from "../screens/AuthScreens/screens/Dashboard";
+
+
+
 const MainStack = createNativeStackNavigator();
 const Main = () => {
   return (
@@ -24,7 +32,13 @@ const Main = () => {
       screenOptions={{
         headerShown: false,
       }}
+      initialRouteName="StartScreen"
     >
+      <MainStack.Screen name="StartScreen" component={StartScreen} />
+      <MainStack.Screen name="LoginScreen" component={LoginScreen} />
+      <MainStack.Screen name="RegisterScreen" component={RegisterScreen} />
+      <MainStack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
+      <MainStack.Screen name="Dashboard" component={Dashboard} />
       <MainStack.Screen name="MainTabs" component={MainTabs} />
       <MainStack.Screen name="AllAnnonces" component={AllAnnonces} />
       <MainStack.Screen name="Details" component={DetailsScreen} />
