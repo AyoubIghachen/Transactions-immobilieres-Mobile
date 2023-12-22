@@ -4,13 +4,13 @@ import 'firebase/compat/firestore';
 import 'firebase/compat/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB2pEvILrEWiJYXHmbljKLd5GQ9iiNljEs",
-  authDomain: "fir-storagetransaction.firebaseapp.com",
-  projectId: "fir-storagetransaction",
-  storageBucket: "fir-storagetransaction.appspot.com",
-  messagingSenderId: "414359172066",
-  appId: "1:414359172066:web:178051b9c6500316f23fbb",
-  measurementId: "G-BRX9M3WLMJ"
+  apiKey: "AIzaSyCEVQk79Pv2AWtDH4Qoma4TIYbUEZFchxk",
+  authDomain: "fir-stockagetransactions2.firebaseapp.com",
+  projectId: "fir-stockagetransactions2",
+  storageBucket: "fir-stockagetransactions2.appspot.com",
+  messagingSenderId: "70709582941",
+  appId: "1:70709582941:web:667929d683ed21b14a81b4",
+  measurementId: "G-ZWYQSZ81R5"
 };
 
 if (!firebase.apps.length) {
