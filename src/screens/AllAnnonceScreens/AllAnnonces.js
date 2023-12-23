@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, FlatList, TouchableOpacity, View, Image, ScrollView } from "react-native";
+import { StyleSheet, FlatList, TouchableOpacity, View, Image } from "react-native";
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
 import { Layout, Text, TopNav, themeColor, useTheme, } from "react-native-rapi-ui";
@@ -75,7 +75,8 @@ export default function ({ navigation }) {
 
       setAllAnnonces(data);
       setAnnonces(data.slice(0, ITEMS_PER_PAGE));
-      if (!selectedAnnonce) setSelectedAnnonce(data[0]); // Set the first announcement as selected
+      // if (!selectedAnnonce) setSelectedAnnonce(data[0]);
+      setSelectedAnnonce(data[0]); // Set the first announcement as selected
 
     } catch (error) {
       console.error("Error fetching announcements:", error.message);
