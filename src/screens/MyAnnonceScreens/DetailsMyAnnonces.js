@@ -1,8 +1,14 @@
-import { Alert, Button, Text, Image, View, ScrollView, StyleSheet } from 'react-native';
+import { useState } from "react";
+import { Alert, Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import Modal from "react-native-modal";
+import ImageViewer from 'react-native-image-zoom-viewer';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 
 
 function DetailsMyAnnonces({ route, navigation }) {
     const { annonce } = route.params;
+    const [isImageViewerVisible, setImageViewerVisible] = useState(false);
 
     const handleDelete = () => {
         Alert.alert(
@@ -46,6 +52,8 @@ function DetailsMyAnnonces({ route, navigation }) {
         navigation.navigate('EditAnnonce', { annonce }); // navigate to the edit screen with the current annonce
     };
 
+    const images = annonce.photo && typeof annonce.photo === 'string' ? annonce.photo.split(';').map(url => ({ url })) : [];
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -61,7 +69,9 @@ function DetailsMyAnnonces({ route, navigation }) {
                     <Text>Type d'opération: {annonce.type_operation}</Text>
                     <Text>Description: {annonce.description}</Text>
                     {annonce.photo && typeof annonce.photo === 'string' && annonce.photo.split(';').map((url, index) => (
-                        <Image key={index} source={{ uri: url }} style={styles.image} />
+                        <TouchableOpacity key={index} onPress={() => setImageViewerVisible(true)}>
+                            <Image source={{ uri: url }} style={styles.image} />
+                        </TouchableOpacity>
                     ))}
                 </View>
 
@@ -71,6 +81,22 @@ function DetailsMyAnnonces({ route, navigation }) {
                     <Button title="Retourner" onPress={() => navigation.goBack()} color="#841584" />
                 </View>
             </ScrollView>
+
+            <Modal
+                isVisible={isImageViewerVisible}
+                style={{ width: '100%', height: '100%', margin: 0 }}
+            >
+                <ImageViewer
+                    imageUrls={images}
+                    enableSwipeDown={true}
+                    onSwipeDown={() => setImageViewerVisible(false)}
+                    renderHeader={() => (
+                        <TouchableOpacity style={{ padding: 10 }} onPress={() => setImageViewerVisible(false)}>
+                            <Icon name="close" size={30} color="white" />
+                        </TouchableOpacity>
+                    )}
+                />
+            </Modal>
         </View>
     );
 }
