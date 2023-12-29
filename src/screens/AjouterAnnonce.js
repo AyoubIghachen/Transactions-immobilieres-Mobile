@@ -117,7 +117,7 @@ export default function ({ navigation }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://192.168.43.59:3002/annonces", {
+      const response = await fetch(`http://192.168.43.59:3002/annonces/${user.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,10 +137,7 @@ export default function ({ navigation }) {
           prix_bien: prix_bien,
           description: description,
           latitude: region.latitude,
-          longitude: region.longitude,
-          annonceur: {
-            id: user.id // modify when you implement auth
-          }
+          longitude: region.longitude
         }),
       });
 

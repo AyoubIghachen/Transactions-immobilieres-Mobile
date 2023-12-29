@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import AuthContext from '../AuthContext';
 import { Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from "react-native-modal";
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -7,6 +8,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 
 function DetailsScreen({ route, navigation }) {
+    const { user } = useContext(AuthContext);
+    
     useEffect(() => {
         navigation.setOptions({
             headerTitle: 'Détails de l\'annonce',
@@ -30,12 +33,8 @@ function DetailsScreen({ route, navigation }) {
                     'Accept': 'application/json',
                 },
                 body: JSON.stringify({
-                    annonce: {
-                        id: annonce.id
-                    },
-                    demandeur: {
-                        id: user.id // modify when you implement auth
-                    }
+                    id_annonce: annonce.id,
+                    id_demmandeur: user.id,
                 })
             });
 
