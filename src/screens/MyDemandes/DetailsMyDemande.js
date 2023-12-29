@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from "react-native-modal";
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Icon from 'react-native-vector-icons/Ionicons';
-// import AnnonceCard from "../../components/utils/AnnonceCard";
 
 
-function DetailsScreen({ route, navigation }) {
+
+function DetailsMyDemande({ route, navigation }) {
     useEffect(() => {
         navigation.setOptions({
-            headerTitle: 'Détails de l\'annonce',
+            headerTitle: 'Détails de la demande',
             headerStyle: {
                 backgroundColor: '#fff',
             },
@@ -21,34 +21,42 @@ function DetailsScreen({ route, navigation }) {
     const [isImageViewerVisible, setImageViewerVisible] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const handleDemander = async () => {
-        try {
-            const demandeResponse = await fetch('http://192.168.43.59:3002/demandes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+    const handleDelete = () => {
+        Alert.alert(
+            "Confirmation",
+            "Êtes-vous sûr(e) de vouloir supprimer cette demande ?",
+            [
+                {
+                    text: "Annuler",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
                 },
-                body: JSON.stringify({
-                    annonce: {
-                        id: annonce.id
-                    },
-                    demandeur: {
-                        id: 4 // modify when you implement auth
+                {
+                    text: "Yes", onPress: async () => {
+                        try {
+                            const deleteResponse = await fetch(`http://192.168.43.59:3002/demandes/${annonce.id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                },
+                            });
+
+                            if (!deleteResponse.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+
+                            alert('Demande deleted successfully');
+                            navigation.goBack();
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Failed to delete annonce');
+                        }
                     }
-                })
-            });
-
-            if (!demandeResponse.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            alert('Demande sent successfully');
-            navigation.goBack();
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to send demande');
-        }
+                }
+            ],
+            { cancelable: false }
+        );
     };
 
     const images = annonce.photo && typeof annonce.photo === 'string' ? annonce.photo.split(';').map(url => ({ url })) : [];
@@ -59,13 +67,13 @@ function DetailsScreen({ route, navigation }) {
 
                 <View style={styles.card}>
                     <Text style={styles.title}>ID: {annonce.id}</Text>
+                    <Text>Statut: {annonce.statut}</Text>
+                    <Text>Etat: {annonce.etat}</Text>
                     <Text>Type de bien: {annonce.type_bien}</Text>
                     <Text>Delai: {annonce.delai} Jour (s)</Text>
                     <Text>Prix: {annonce.prix_bien} Dhs</Text>
                     <Text>Surface: {annonce.surface} m²</Text>
                     <Text>Type d'opération: {annonce.type_operation}</Text>
-                    <Text>Etat: {annonce.etat}</Text>
-                    <Text>Statut: {annonce.statut}</Text>
                     <Text>Description: {annonce.description}</Text>
                     {annonce.photo && typeof annonce.photo === 'string' && annonce.photo.split(';').map((url, index) => (
                         <TouchableOpacity key={index} onPress={() => { setImageViewerVisible(true); setCurrentImageIndex(index); }}>
@@ -75,7 +83,7 @@ function DetailsScreen({ route, navigation }) {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    <Button title="Demander" onPress={handleDemander} color="#841584" />
+                    <Button title="Supprimer" onPress={handleDelete} color="#841584" />
                     <Button title="Retourner" onPress={() => navigation.goBack()} color="#841584" />
                 </View>
             </ScrollView>
@@ -136,4 +144,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DetailsScreen;
+export default DetailsMyDemande;

@@ -159,7 +159,17 @@ export default function ({ navigation }) {
 
     fetchAnnouncements();
     getLocation();
-  }, []);
+
+
+    navigation.setOptions({
+      headerTitle: "L'ensemble des annonces",
+      headerStyle: {
+        backgroundColor: '#fff',
+      },
+      headerTintColor: '#333',
+    });
+  }, [navigation]);
+
 
   const fetchAnnouncements = async () => {
     try {
@@ -317,39 +327,6 @@ export default function ({ navigation }) {
 
   return (
     <Layout>
-      <TopNav
-        middleContent="L'ensemble des annonces"
-        rightContent={
-          <View style={{ flexDirection: 'row' }}>
-            <TouchableOpacity onPress={toggleModal}>
-              <Icon
-                name="filter"
-                type="font-awesome"
-                color={isDarkmode ? themeColor.white100 : "#191921"}
-                size={20}
-                style={{ marginRight: 15 }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowMap(!showMap)}>
-              <Ionicons
-                name={showMap ? "list-outline" : "map-outline"}
-                size={24}
-                color={isDarkmode ? themeColor.white100 : "#191921"}
-              />
-            </TouchableOpacity>
-          </View>
-        }
-        leftContent={
-          <Ionicons
-            name="chevron-back"
-            size={20}
-            color={isDarkmode ? themeColor.white100 : "#191921"}
-          />
-        }
-        leftAction={() => navigation.goBack()}
-      />
-
-
 
       {showMap && (
         <MapView
@@ -404,7 +381,7 @@ export default function ({ navigation }) {
                 <Text style={styles.normalText}>Description: {item.description}</Text>
 
                 <Button
-                  title="Details"
+                  title="Détails"
                   onPress={() => navigation.navigate('Details', { annonce: item })}
                 />
               </View>
@@ -551,6 +528,43 @@ export default function ({ navigation }) {
           />
         </View>
       </Modal>
+
+      <View style={{
+        flexDirection: 'row',
+        bottom: 0,
+        width: '100%',
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        backgroundColor: '#fff',
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderTopWidth: 0.5,
+        borderTopColor: 'black',
+      }}>
+        <TouchableOpacity onPress={toggleModal}>
+          <Icon
+            name="filter"
+            type="font-awesome"
+            color={isDarkmode ? themeColor.white100 : "#191921"}
+            size={20}
+            style={{ marginRight: 15 }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowMap(!showMap)}>
+          <Ionicons
+            name={showMap ? "list-outline" : "map-outline"}
+            size={24}
+            color={isDarkmode ? themeColor.white100 : "#191921"}
+          />
+        </TouchableOpacity>
+      </View>
 
     </Layout>
   );

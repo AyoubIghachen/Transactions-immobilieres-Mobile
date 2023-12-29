@@ -1,5 +1,5 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import AuthContext from '../../AuthContext';
 import { StyleSheet, FlatList, TouchableOpacity, View, Image } from "react-native";
 import MapView from "react-native-map-clustering";
@@ -15,6 +15,17 @@ import Modal from "react-native-modal";
 const ITEMS_PER_PAGE = 50;
 
 export default function ({ navigation }) {
+    useEffect(() => {
+        navigation.setOptions({
+            headerTitle: 'Mes Demandes',
+            headerStyle: {
+                backgroundColor: '#fff',
+            },
+            headerTintColor: '#333',
+        });
+    }, [navigation]);
+
+
     const { user } = useContext(AuthContext);
     const { isDarkmode } = useTheme();
     const [region, setRegion] = useState(null);
@@ -170,12 +181,12 @@ export default function ({ navigation }) {
         React.useCallback(() => {
             fetchPropertyTypes();
             fetchOperationTypes();
-          if (Object.keys(filterValues).length === 0) {
-            fetchAnnouncements();
-          }
-          getLocation();
+            if (Object.keys(filterValues).length === 0) {
+                fetchAnnouncements();
+            }
+            getLocation();
         }, [filterValues])
-      );
+    );
 
 
     const fetchAnnouncements = async () => {
@@ -341,38 +352,6 @@ export default function ({ navigation }) {
 
     return (
         <Layout>
-            <TopNav
-                middleContent="Mes Demandes"
-                rightContent={
-                    <View style={{ flexDirection: 'row' }}>
-                        <TouchableOpacity onPress={toggleModal}>
-                            <Icon
-                                name="filter"
-                                type="font-awesome"
-                                color={isDarkmode ? themeColor.white100 : "#191921"}
-                                size={20}
-                                style={{ marginRight: 15 }}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setShowMap(!showMap)}>
-                            <Ionicons
-                                name={showMap ? "list-outline" : "map-outline"}
-                                size={24}
-                                color={isDarkmode ? themeColor.white100 : "#191921"}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                }
-                leftContent={
-                    <Ionicons
-                        name="chevron-back"
-                        size={20}
-                        color={isDarkmode ? themeColor.white100 : "#191921"}
-                    />
-                }
-                leftAction={() => navigation.goBack()}
-            />
-
 
             {showMap && (
                 <MapView
@@ -429,8 +408,8 @@ export default function ({ navigation }) {
                                 <Text style={styles.normalText}>Description: {item.description}</Text>
 
                                 <Button
-                                    title="Details"
-                                    onPress={() => navigation.navigate('DetailsMyAnnonces', { annonce: item })}
+                                    title="Détails"
+                                    onPress={() => navigation.navigate('DetailsMyDemande', { annonce: item })}
                                 />
                             </View>
                         </TouchableOpacity>
@@ -576,6 +555,43 @@ export default function ({ navigation }) {
                 </View>
             </Modal>
 
+
+            <View style={{
+                flexDirection: 'row',
+                bottom: 0,
+                width: '100%',
+                height: 40,
+                alignItems: 'center',
+                justifyContent: 'space-around',
+                backgroundColor: '#fff',
+                shadowColor: "#000",
+                shadowOffset: {
+                    width: 0,
+                    height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                borderTopWidth: 0.5,
+                borderTopColor: 'black',
+            }}>
+                <TouchableOpacity onPress={toggleModal}>
+                    <Icon
+                        name="filter"
+                        type="font-awesome"
+                        color={isDarkmode ? themeColor.white100 : "#191921"}
+                        size={20}
+                        style={{ marginRight: 15 }}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowMap(!showMap)}>
+                    <Ionicons
+                        name={showMap ? "list-outline" : "map-outline"}
+                        size={24}
+                        color={isDarkmode ? themeColor.white100 : "#191921"}
+                    />
+                </TouchableOpacity>
+            </View>
 
         </Layout>
     );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Alert, Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from "react-native-modal";
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -7,8 +7,19 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 
 function DetailsMyAnnonces({ route, navigation }) {
+    useEffect(() => {
+        navigation.setOptions({
+            headerTitle: 'Détails de mon annonce',
+            headerStyle: {
+                backgroundColor: '#fff',
+            },
+            headerTintColor: '#333',
+        });
+    }, [navigation]);
+
     const { annonce } = route.params;
     const [isImageViewerVisible, setImageViewerVisible] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleDelete = () => {
         Alert.alert(
@@ -69,7 +80,7 @@ function DetailsMyAnnonces({ route, navigation }) {
                     <Text>Type d'opération: {annonce.type_operation}</Text>
                     <Text>Description: {annonce.description}</Text>
                     {annonce.photo && typeof annonce.photo === 'string' && annonce.photo.split(';').map((url, index) => (
-                        <TouchableOpacity key={index} onPress={() => setImageViewerVisible(true)}>
+                        <TouchableOpacity key={index} onPress={() => { setImageViewerVisible(true); setCurrentImageIndex(index); }}>
                             <Image source={{ uri: url }} style={styles.image} />
                         </TouchableOpacity>
                     ))}
@@ -88,6 +99,7 @@ function DetailsMyAnnonces({ route, navigation }) {
             >
                 <ImageViewer
                     imageUrls={images}
+                    index={currentImageIndex}
                     enableSwipeDown={true}
                     onSwipeDown={() => setImageViewerVisible(false)}
                     renderHeader={() => (

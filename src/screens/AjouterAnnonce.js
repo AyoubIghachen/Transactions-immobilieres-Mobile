@@ -9,6 +9,8 @@ import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from 'expo-image-picker';
 import { firebase } from '../config';
 
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 export default function ({ navigation }) {
   const [markers, setMarkers] = useState([]);
@@ -262,21 +264,60 @@ export default function ({ navigation }) {
           }
         })}
       </MapView>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, { width: "45%" }]}
-          onPress={() => setAddMarker(!addMarker)}
-        >
-          <FontAwesome
-            name={addMarker ? "times" : "plus"}
-            size={24}
-            color="white"
-          />
-          <Text style={styles.buttonText}>
-            {addMarker ? "Annuler" : "Localiser"}
-          </Text>
+
+
+      <View style={{
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        height: 75,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f8f8f8', // Lighter background
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: -2, // Negative value to lift the shadow up
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderTopWidth: 1,
+        borderTopColor: '#ddd', // Lighter border color
+      }}>
+        <TouchableOpacity onPress={() => setAddMarker(!addMarker)}>
+          <LinearGradient
+            colors={['#3498db', '#2980b9']}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            style={[
+              styles.button,
+              {
+                width: "31%",
+                borderRadius: 25,
+                padding: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }
+            ]}
+          >
+            <FontAwesome
+              name={addMarker ? "times" : "plus"}
+              size={24}
+              color="white"
+              style={{
+                textShadowColor: 'rgba(0, 0, 0, 0.75)', // Shadow color
+                textShadowOffset: { width: -1, height: 1 }, // Shadow offset
+                textShadowRadius: 10, // Shadow blur radius
+              }}
+            />
+            <Text style={[styles.buttonText, { color: 'white', marginLeft: 10 }]}>
+              {addMarker ? "Annuler" : "Localiser"}
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
+
       <Modal
         animationType="slide"
         transparent={false}

@@ -48,7 +48,7 @@ export default function LoginScreen({ navigation }) {
         setUser(data);  // Store the user data
         navigation.reset({
           index: 0,
-          routes: [{ name: 'MainTabs' }],
+          routes: [{ name: 'Home' }],
         })
       } else {
         // If the response is not ok, throw an error or return a default error message
