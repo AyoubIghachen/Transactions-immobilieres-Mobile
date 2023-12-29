@@ -377,7 +377,15 @@ export default function ({ navigation }) {
                             key={annonce.id}
                             coordinate={annonce.coordinate}
                             description={annonce.description}
-                        />
+                        >
+                            <Image
+                                source={require("./../../../assets/real-estate.png")}
+                                style={{
+                                    width: 35,
+                                    height: 35
+                                }}
+                            />
+                        </Marker>
                     ))}
                 </MapView>
             )}

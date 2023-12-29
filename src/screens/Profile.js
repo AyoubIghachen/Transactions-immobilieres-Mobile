@@ -26,13 +26,13 @@ export default function ({ navigation }) {
             />
             <Text style={styles.name}>{user.nom} {user.prenom}</Text>
             <Text style={styles.email}>{user.email}</Text>
-            <Button
+            {/* <Button
               text="Edite profile"
               onPress={() => {
                 // navigation.navigate("SecondScreen");
               }}
               style={styles.button}
-            />
+            /> */}
           </SectionContent>
         </Section>
       </View>

@@ -1,5 +1,6 @@
 import { Layout } from 'react-native-rapi-ui';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import AuthContext from '../AuthContext';
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
 import { StyleSheet, View, Modal, TextInput, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
@@ -13,6 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 
 export default function ({ navigation }) {
+  const { user } = useContext(AuthContext);
+
   const [markers, setMarkers] = useState([]);
   const [visible, setVisible] = useState(false);
   const [mapKey, setMapKey] = useState("");
@@ -136,7 +139,7 @@ export default function ({ navigation }) {
           latitude: region.latitude,
           longitude: region.longitude,
           annonceur: {
-            id: 2 // modify when you implement auth
+            id: user.id // modify when you implement auth
           }
         }),
       });
@@ -256,6 +259,13 @@ export default function ({ navigation }) {
                 pinColor={marker.type_bien === "VILLA" ? "red" : "blue"}
                 onPress={() => setSelectedMarker(marker)}
               >
+                <Image
+                  source={require("./../../assets/real-estate.png")}
+                  style={{
+                    width: 35,
+                    height: 35
+                  }}
+                />
 
               </Marker>
             );

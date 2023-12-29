@@ -34,7 +34,7 @@ function DetailsScreen({ route, navigation }) {
                         id: annonce.id
                     },
                     demandeur: {
-                        id: 4 // modify when you implement auth
+                        id: user.id // modify when you implement auth
                     }
                 })
             });

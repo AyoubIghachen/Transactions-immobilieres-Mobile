@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Linking, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import {
-  Button,
   Text,
   SectionContent,
 } from "react-native-rapi-ui";
@@ -35,6 +34,10 @@ export default function ({ navigation }) {
     { id: '6', uri: 'https://mygate.com/wp-content/uploads/2023/07/110.jpg' },
     { id: '7', uri: 'https://cdn.luxe.digital/media/20230123162705/most-expensive-houses-in-the-world-reviews-luxe-digital-1200x600.jpg' },
     { id: '8', uri: 'https://people.com/thmb/Rq4-T9Jiu-hohH1zxcPFgdeszBQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(780x211:782x213)/barbie-Ken-malibu-Dream-House-Airbnb-tout-e18b10475a30478992ea81a023e8c1be.jpg' },
+    { id: '9', uri: 'https://m.cbhomes.com/p/951/4867176/68F406fcc4d6498/original.jpg' },
+    { id: '10', uri: 'https://i.pinimg.com/originals/19/56/4a/19564a5a312adc8dd0d4d051358106cd.jpg' },
+    { id: '11', uri: 'https://www.weston.org/ImageRepository/Document?documentID=1319' },
+    { id: '12', uri: 'https://cdn.onekindesign.com/wp-content/uploads/2021/08/Colonial-Style-Countryside-Retreat-Chango-Co-01-1-Kindesign.jpg' },
   ];
 
   const images = photos.map(photo => ({ url: photo.uri }));
@@ -66,12 +69,12 @@ export default function ({ navigation }) {
         </SectionContent>
       </ScrollView>
 
-      <Button
+      <TouchableOpacity
         style={styles.button}
-        text="Acceder a la page web"
-        status="info"
         onPress={() => Linking.openURL("https://rapi-ui.kikiding.space/")}
-      />
+      >
+        <Text style={styles.buttonText}>Acceder a la page web</Text>
+      </TouchableOpacity>
 
       <Modal
         isVisible={isImageViewerVisible}
@@ -115,5 +118,13 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
+    marginBottom: 10,
+    backgroundColor: '#6699cc', // Gray blue color
+    padding: 10, // Add padding to make the button larger
+    alignItems: 'center', // Center the text horizontally
+  },
+  buttonText: {
+    color: '#fff', // White color for the text
+    fontSize: 16, // Increase the font size
   },
 });

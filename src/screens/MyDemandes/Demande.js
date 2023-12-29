@@ -191,9 +191,8 @@ export default function ({ navigation }) {
 
     const fetchAnnouncements = async () => {
         try {
-            const annonceur_id = user.id;
-            console.log(annonceur_id);
-            const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${annonceur_id}`);
+            console.log(user.id);
+            const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${user.id}`);
 
             let data = await response.json();
 
@@ -377,7 +376,15 @@ export default function ({ navigation }) {
                             key={annonce.id}
                             coordinate={annonce.coordinate}
                             description={annonce.description}
-                        />
+                        >
+                            <Image
+                                source={require("./../../../assets/real-estate.png")}
+                                style={{
+                                    width: 35,
+                                    height: 35
+                                }}
+                            />
+                        </Marker>
                     ))}
                 </MapView>
             )}
