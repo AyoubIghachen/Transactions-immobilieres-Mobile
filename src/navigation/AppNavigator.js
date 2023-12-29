@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, View, Text } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -35,43 +35,45 @@ const Main = () => {
         headerTitleAlign: 'center',
         headerRight: () => (
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Icon name="person" size={25} color={"#000000"} />
+            <Icon name="person-outline" size={25} color={"#000000"} />
           </TouchableOpacity>
         ),
         headerLeft: () => (
           <Menu>
             <MenuTrigger>
-              <Icon name="menu" size={25} color={"#000000"} />
+              <Icon name="menu-outline" size={25} color={"#000000"} />
             </MenuTrigger>
-            <MenuOptions>
+            <MenuOptions
+              optionsContainerStyle={{ backgroundColor: '#f5f5f5' }}
+            >
               <MenuOption onSelect={() => navigation.navigate('Home')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Icon name="home" size={20} color={"#000000"} />
-                  <Text style={{ marginLeft: 10 }}>Acceuil</Text>
+                <View style={styles.optionContainer}>
+                  <Icon name="home-outline" size={20} color={"#000000"} />
+                  <Text style={styles.optionText}>Acceuil</Text>
                 </View>
               </MenuOption>
               <MenuOption onSelect={() => navigation.navigate('AjouterAnnonce')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Icon name="add-circle" size={20} color={"#000000"} />
-                  <Text style={{ marginLeft: 10 }}>Ajouter Annonce</Text>
+                <View style={styles.optionContainer}>
+                  <Icon name="add-circle-outline" size={20} color={"#000000"} />
+                  <Text style={styles.optionText}>Ajouter Annonce</Text>
                 </View>
               </MenuOption>
               <MenuOption onSelect={() => navigation.navigate('Demande')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Icon name="list" size={20} color={"#000000"} />
-                  <Text style={{ marginLeft: 10 }}>Mes Demandes</Text>
+                <View style={styles.optionContainer}>
+                  <Icon name="list-outline" size={20} color={"#000000"} />
+                  <Text style={styles.optionText}>Mes Demandes</Text>
                 </View>
               </MenuOption>
               <MenuOption onSelect={() => navigation.navigate('MyAnnonces')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Icon name="person" size={20} color={"#000000"} />
-                  <Text style={{ marginLeft: 10 }}>Mes Annonces</Text>
+                <View style={styles.optionContainer}>
+                  <Icon name="megaphone-outline" size={20} color={"#000000"} />
+                  <Text style={styles.optionText}>Mes Annonces</Text>
                 </View>
               </MenuOption>
               <MenuOption onSelect={() => navigation.navigate('AllAnnonces')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Icon name="eye" size={20} color={"#000000"} />
-                  <Text style={{ marginLeft: 10 }}>Voir les Annonces</Text>
+                <View style={styles.optionContainer}>
+                  <Icon name="grid-outline" size={20} color={"#000000"} />
+                  <Text style={styles.optionText}>Voir les Annonces</Text>
                 </View>
               </MenuOption>
             </MenuOptions>
@@ -86,7 +88,7 @@ const Main = () => {
       <MainStack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ headerShown: false }} />
       <MainStack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
       <MainStack.Screen name="Home" component={Home} />
-      
+
       <MainStack.Screen name="AllAnnonces" component={AllAnnonces} />
       <MainStack.Screen name="Details" component={DetailsScreen} />
 
@@ -102,6 +104,20 @@ const Main = () => {
     </MainStack.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  optionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  optionText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+});
+
 
 export default () => {
   return (
