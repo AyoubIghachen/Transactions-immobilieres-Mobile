@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import AuthContext from '../../../AuthContext';
 import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
@@ -13,24 +14,61 @@ import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 
 export default function RegisterScreen({ navigation }) {
-  const [name, setName] = useState({ value: '', error: '' })
+  const { setUser } = useContext(AuthContext);
+
+  const [firstName, setFirstName] = useState({ value: '', error: '' })
+  const [lastName, setLastName] = useState({ value: '', error: '' })
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
 
-  const onSignUpPressed = () => {
-    const nameError = nameValidator(name.value)
+  const onSignUpPressed = async () => {
+    const firstNameError = nameValidator(firstName.value)
+    const lastNameError = nameValidator(lastName.value)
     const emailError = emailValidator(email.value)
     const passwordError = passwordValidator(password.value)
-    if (emailError || passwordError || nameError) {
-      setName({ ...name, error: nameError })
+    if (emailError || passwordError || firstNameError || lastNameError) {
+      setFirstName({ ...firstName, error: firstNameError })
+      setLastName({ ...lastName, error: lastNameError })
       setEmail({ ...email, error: emailError })
       setPassword({ ...password, error: passwordError })
       return
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Dashboard' }],
-    })
+
+    // Make a request to your server
+    try {
+      const response = await fetch('http://192.168.43.59:3002/utilisateurs/mobile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          nom: firstName.value,
+          prenom: lastName.value,
+          email: email.value,
+          password: password.value
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        })
+      } else {
+        // If the response is not ok, throw an error or return a default error message
+        const error = await response.text();
+        throw new Error(error || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error(error);
+      setFirstName({ ...firstName, error: 'Something went wrong' });
+      setLastName({ ...lastName, error: 'Something went wrong' });
+      setEmail({ ...email, error: 'Something went wrong' });
+      setPassword({ ...password, error: 'Something went wrong' });
+    }
   }
 
   return (
@@ -39,12 +77,20 @@ export default function RegisterScreen({ navigation }) {
       <Logo />
       <Header>Création de compte</Header>
       <TextInput
-        label="Nom complet"
+        label="Prenom"
         returnKeyType="next"
-        value={name.value}
-        onChangeText={(text) => setName({ value: text, error: '' })}
-        error={!!name.error}
-        errorText={name.error}
+        value={firstName.value}
+        onChangeText={(text) => setFirstName({ value: text, error: '' })}
+        error={!!firstName.error}
+        errorText={firstName.error}
+      />
+      <TextInput
+        label="Nom"
+        returnKeyType="next"
+        value={lastName.value}
+        onChangeText={(text) => setLastName({ value: text, error: '' })}
+        error={!!lastName.error}
+        errorText={lastName.error}
       />
       <TextInput
         label="Email"

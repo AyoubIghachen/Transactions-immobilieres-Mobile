@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import AuthContext from '../AuthContext';
+import AuthContext from '../../AuthContext';
 import { Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import Modal from "react-native-modal";
 import ImageViewer from 'react-native-image-zoom-viewer';

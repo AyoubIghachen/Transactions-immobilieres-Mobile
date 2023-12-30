@@ -165,7 +165,7 @@ export default function ({ navigation }) {
 
 
 
-    /*useFocusEffect(
+    useFocusEffect(
         React.useCallback(() => {
             fetchPropertyTypes();
             fetchOperationTypes();
@@ -175,9 +175,9 @@ export default function ({ navigation }) {
             fetchAnnouncements();
             getLocation();
         }, [])
-    );*/
+    );
 
-    useFocusEffect(
+    /*useFocusEffect(
         React.useCallback(() => {
             fetchPropertyTypes();
             fetchOperationTypes();
@@ -186,7 +186,7 @@ export default function ({ navigation }) {
             }
             getLocation();
         }, [filterValues])
-    );
+    );*/
 
 
     const fetchAnnouncements = async () => {
@@ -555,6 +555,13 @@ export default function ({ navigation }) {
                                     <Button
                                         title="Appliquer le filtre"
                                         onPress={handleFilterSubmit}
+                                    />
+                                </View>
+
+                                <View style={{ marginTop: 20 }}>
+                                    <Button
+                                        title="Cancel"
+                                        onPress={toggleModal}
                                     />
                                 </View>
                             </>

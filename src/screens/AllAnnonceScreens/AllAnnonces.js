@@ -531,6 +531,13 @@ export default function ({ navigation }) {
                     onPress={handleFilterSubmit}
                   />
                 </View>
+
+                <View style={{ marginTop: 20 }}>
+                  <Button
+                    title="Cancel"
+                    onPress={toggleModal}
+                  />
+                </View>
               </>
             )}
           />

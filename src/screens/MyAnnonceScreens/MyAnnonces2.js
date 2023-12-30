@@ -17,7 +17,7 @@ const ITEMS_PER_PAGE = 50;
 export default function ({ navigation }) {
     useEffect(() => {
         navigation.setOptions({
-            headerTitle: 'Mes Demandes',
+            headerTitle: 'Mes Annonces',
             headerStyle: {
                 backgroundColor: '#fff',
             },
@@ -165,7 +165,7 @@ export default function ({ navigation }) {
 
 
 
-    useFocusEffect(
+    /*useFocusEffect(
         React.useCallback(() => {
             fetchPropertyTypes();
             fetchOperationTypes();
@@ -175,9 +175,9 @@ export default function ({ navigation }) {
             fetchAnnouncements();
             getLocation();
         }, [])
-    );
+    );*/
 
-    /*useFocusEffect(
+    useFocusEffect(
         React.useCallback(() => {
             fetchPropertyTypes();
             fetchOperationTypes();
@@ -186,38 +186,39 @@ export default function ({ navigation }) {
             }
             getLocation();
         }, [filterValues])
-    );*/
+    );
 
 
     const fetchAnnouncements = async () => {
         try {
-            const response = await fetch(`http://192.168.43.59:3002/demandes/citoyen/${user.id}`);
-            //const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${user.id}`);
+            const annonceur_id = user.id;
+            console.log(annonceur_id);
+            const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${annonceur_id}`);
 
             let data = await response.json();
-            console.log(data);
-            console.log(`Fetched ${data.length} items.`);
+
+            console.log(`Fetched ${data.length} items.`); // Add this line
 
 
             // Adjust the structure of the markers
             data = data.map(marker => ({
-                id: marker.annonce.id,
+                id: marker.id,
                 coordinate: {
-                    latitude: marker.annonce.latitude ? parseFloat(marker.annonce.latitude) : 0,
-                    longitude: marker.annonce.longitude ? parseFloat(marker.annonce.longitude) : 0,
+                    latitude: marker.latitude ? parseFloat(marker.latitude) : 0,
+                    longitude: marker.longitude ? parseFloat(marker.longitude) : 0,
                 },
-                type_bien: marker.annonce.type_bien,
-                surface: marker.annonce.surface,
-                prix_bien: marker.annonce.prix_bien,
-                date_annonce: marker.annonce.date_annonce,
-                statut: marker.annonce.statut,
-                type_operation: marker.annonce.type_operation,
-                description: marker.annonce.description,
-                motif_rejet: marker.annonce.motif_rejet,
-                delai: marker.annonce.delai,
-                etat: marker.annonce.etat,
-                intermediaire_id: marker.annonce.intermediaire_id,
-                photo: marker.annonce.photo,
+                type_bien: marker.type_bien,
+                surface: marker.surface,
+                prix_bien: marker.prix_bien,
+                date_annonce: marker.date_annonce,
+                statut: marker.statut,
+                type_operation: marker.type_operation,
+                description: marker.description,
+                motif_rejet: marker.motif_rejet,
+                delai: marker.delai,
+                etat: marker.etat,
+                intermediaire_id: marker.intermediaire_id,
+                photo: marker.photo,
             }));
 
             setAllAnnonces(data);
@@ -416,7 +417,7 @@ export default function ({ navigation }) {
 
                                 <Button
                                     title="Détails"
-                                    onPress={() => navigation.navigate('DetailsMyDemande', { annonce: item })}
+                                    onPress={() => navigation.navigate('DetailsMyAnnonces', { annonce: item })}
                                 />
                             </View>
                         </TouchableOpacity>
