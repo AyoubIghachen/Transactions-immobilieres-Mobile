@@ -8,7 +8,6 @@ import TextInput from '../components/TextInput'
 import { emailValidator } from '../helpers/emailValidator'
 
 import { Alert } from 'react-native'
-import Mailer from 'react-native-mail'
 
 
 export default function ResetPasswordScreen({ navigation }) {
@@ -23,34 +22,17 @@ export default function ResetPasswordScreen({ navigation }) {
 
     try {
       const response = await fetch(`http://192.168.43.59:3002/utilisateurs/resetPassword/${email.value}`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-      })
-
+      });
       if (response.ok) {
-        const data = await response.json();
-        Mailer.mail({
-          subject: 'Reset Password',
-          recipients: [email.value],
-          body: `<b>Hey ${data.nom} ${data.prenom}</b>
-          <br/>
-          <b>Your password has been reset. Your new password is: ${data.password}</b>
-          `,
-          isHTML: true,
-        }, (error, event) => {
-          if (error) {
-            Alert.alert('Error', 'Could not send mail. Please send a mail to support@geoinfo.com');
-          } else {
-            navigation.navigate('LoginScreen');
-          }
-        });
+        Alert.alert('Email sent successfully');
+        navigation.navigate('LoginScreen');
       } else {
-        // If the response is not ok, throw an error or return a default error message
-        const error = await response.text();
-        throw new Error(error || 'Something went wrong');
+        Alert.alert('Error sending email');
       }
     } catch (error) {
       console.error(error);
