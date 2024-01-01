@@ -1,9 +1,9 @@
+import * as Location from 'expo-location';
 import React, { useEffect, useState } from "react";
-import { StyleSheet, FlatList, TouchableOpacity, View, Image } from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import MapView from "react-native-map-clustering";
 import { Marker } from "react-native-maps";
-import { Layout, Text, TopNav, themeColor, useTheme, } from "react-native-rapi-ui";
-import * as Location from 'expo-location';
+import { Layout, Text, themeColor, useTheme } from "react-native-rapi-ui";
 
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { Dropdown } from "react-native-element-dropdown";
@@ -379,7 +379,7 @@ export default function ({ navigation }) {
                   source={
                     item.photo && item.photo.split(';')[0]
                       ? { uri: item.photo.split(';')[0] }
-                      : { uri: 'https://placehold.co/200.png' }
+                      : { uri: 'https://www.maisons-du-nord.fr/uploads/images/5ac5df322f55c5aa689f79a101_mdn-realisation-maison-noyelle-sous-bellone.jpg' }
                   }
                 />
 

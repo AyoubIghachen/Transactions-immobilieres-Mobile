@@ -1,16 +1,22 @@
-import { Layout } from 'react-native-rapi-ui';
-import React, { useState, useEffect, useContext } from 'react';
-import AuthContext from '../AuthContext';
-import MapView from "react-native-map-clustering";
-import { Marker } from "react-native-maps";
-import { StyleSheet, View, Modal, TextInput, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
-import * as Location from 'expo-location';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import MapView from "react-native-map-clustering";
+import { Marker } from "react-native-maps";
+import { Layout } from 'react-native-rapi-ui';
+import AuthContext from '../AuthContext';
 import { firebase } from '../config';
 
 import { LinearGradient } from 'expo-linear-gradient';
+
+import * as DocumentPicker from 'expo-document-picker';
+import * as Linking from 'expo-linking';
+
+import { Field, Formik } from 'formik';
+
 
 
 export default function ({ navigation }) {
@@ -27,16 +33,14 @@ export default function ({ navigation }) {
   const [surface, setSurface] = useState("");
   const [type_bien, setType_bien] = useState("");
   const [prix_bien, setPrix_bien] = useState("");
-  const [date_annonce, setDate_annonce] = useState(new Date());
   const [statut, setStatut] = useState("");
   const [type_operation, setType_operation] = useState("");
   const [description, setDescription] = useState("");
-  const [motif_rejet, setMotif_rejet] = useState("");
-  const [delai, setDelai] = useState("");
   const [etat, setEtat] = useState("");
-  const [intermediaire_id, setIntermediaire_id] = useState("");
-  const [photo, setPhoto] = useState("");
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [justificatif_name, setJustificatif_name] = useState("");
+  const [imageUris, setImageUris] = useState([]);
+  const [documentUri, setDocumentUri] = useState(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -45,11 +49,9 @@ export default function ({ navigation }) {
 
   const fetchAnnouncements = async () => {
     try {
-      //const annonceur_id = 2;
-      //const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${annonceur_id}`);
+      const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${user.id}`);
 
-
-      const response = await fetch("http://192.168.43.59:3002/annonces");
+      //const response = await fetch("http://192.168.43.59:3002/annonces");
       let data = await response.json();
 
       // Adjust the structure of the markers
@@ -68,8 +70,8 @@ export default function ({ navigation }) {
         motif_rejet: marker.motif_rejet,
         delai: marker.delai,
         etat: marker.etat,
-        intermediaire_id: marker.intermediaire_id,
         photo: marker.photo,
+        justificatif: marker.justificatif,
       }));
 
       setMarkers(data);
@@ -115,8 +117,32 @@ export default function ({ navigation }) {
 
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values, { resetForm }) => {
     try {
+      // Upload the images
+      const photoUrls = await Promise.all(imageUris.map(async (uri) => {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        const ref = firebase.storage().ref().child(new Date().getTime().toString());
+        const snapshot = await ref.put(blob);
+
+        return await snapshot.ref.getDownloadURL();
+      }));
+
+
+      // Upload the document
+      let url = null;
+      if (documentUri) {
+        const response = await fetch(documentUri);
+        const blob = await response.blob();
+
+        const ref = firebase.storage().ref().child(new Date().getTime().toString());
+        const snapshot = await ref.put(blob);
+
+        url = await snapshot.ref.getDownloadURL();
+      }
+
       const response = await fetch(`http://192.168.43.59:3002/annonces/${user.id}`, {
         method: 'POST',
         headers: {
@@ -124,26 +150,18 @@ export default function ({ navigation }) {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          intermediaire_id: intermediaire_id,
-          date_annonce: date_annonce,
-          statut: statut,
-          motif_rejet: motif_rejet,
-          delai: delai,
-          etat: etat,
-          photo: photo.join(';'),
-          type_operation: type_operation,
-          type_bien: type_bien,
-          surface: surface,
-          prix_bien: prix_bien,
-          description: description,
+          ...values,
+          photo: photoUrls ? photoUrls.join(';') : null,
           latitude: region.latitude,
-          longitude: region.longitude
+          longitude: region.longitude,
+          justificatif: url,
+          statut: "EN_ATTENTE",
+          etat: "NULL",
         }),
       });
 
       if (response.ok) {
         if (region && typeof region.latitude === 'number' && typeof region.longitude === 'number') {
-          console.log('Announcement added successfully');
           // Create a new marker
           const newMarker = {
             id,
@@ -151,18 +169,16 @@ export default function ({ navigation }) {
               latitude: region.latitude,
               longitude: region.longitude,
             },
-            surface,
-            type_bien,
-            prix_bien,
-            date_annonce,
-            statut,
-            type_operation,
-            description,
-            motif_rejet,
-            delai,
-            etat,
-            intermediaire_id,
-            photo,
+            date_annonce: new Date().toISOString().slice(0, 10),
+            surface: values.surface,
+            type_bien: values.type_bien,
+            prix_bien: values.prix_bien,
+            statut: "EN_ATTENTE",
+            type_operation: values.type_operation,
+            description: values.description,
+            etat: "NULL",
+            photo: photoUrls,
+            justificatif: url,
           };
           // Add the new marker to the markers
           setMarkers([...markers, newMarker]);
@@ -170,12 +186,20 @@ export default function ({ navigation }) {
         } else {
           console.error('Invalid region:', region);
         }
+        console.log('Announcement added successfully');
+        Alert.alert('Success', 'Announcement added successfully');
+        resetForm();
+
         handleCancel(); // reset the form fields and close the modal
+        // Delay the closing of the modal by 2 seconds
+        // setTimeout(handleCancel, 5000);
       } else {
         console.error('Error adding announcement:', response.status, response.statusText);
+        Alert.alert('Error', 'Error adding announcement');
       }
     } catch (error) {
       console.error(error);
+      Alert.alert('Error', 'An error occurred');
     }
     setAddMarker(false);
   };
@@ -187,17 +211,15 @@ export default function ({ navigation }) {
     setSurface("");
     setType_bien("");
     setPrix_bien("");
-    setDate_annonce(new Date());
     setStatut("");
     setType_operation("");
     setDescription("");
-    setMotif_rejet("");
-    setDelai("");
     setEtat("");
-    setIntermediaire_id("");
-    setPhoto("");
+    setImageUris([]);
+    setDocumentUri(null);
     setVisible(false);
     setAddMarker(false);
+    setJustificatif_name("");
   };
 
 
@@ -211,19 +233,34 @@ export default function ({ navigation }) {
     });
 
     if (!result.canceled) {
-      const response = await fetch(result.assets[0].uri);
-      const blob = await response.blob();
+      setImageUris(oldUris => [...oldUris, result.assets[0].uri]); // Store the local URI
+    }
+  };
 
-      const ref = firebase.storage().ref().child(new Date().getTime().toString());
-      const snapshot = await ref.put(blob);
 
-      const url = await snapshot.ref.getDownloadURL();
-      // Append the new image URL to the photo state
-      setPhoto(oldPhoto => oldPhoto ? [...oldPhoto, url] : [url]);
+  const pickDocument = async () => {
+    let result = await DocumentPicker.getDocumentAsync({});
+
+    if (result.type !== 'cancel') {
+      setDocumentUri(result.assets[0].uri); // Store the local URI
+      setJustificatif_name(result.assets[0].name);
     }
   };
 
   //console.log(markers);
+
+  const FormikTextInput = ({ field, form, ...props }) => {
+    const { name } = field;
+    const { setFieldValue } = form;
+
+    return (
+      <TextInput
+        value={field.value}
+        onChangeText={(value) => setFieldValue(name, value)}
+        {...props}
+      />
+    );
+  };
 
   return (
     <Layout>
@@ -231,18 +268,17 @@ export default function ({ navigation }) {
         key={mapKey}
         style={styles.map}
         onPress={(e) => {
-          setRegion({
+          setRegion((currentRegion) => ({
+            ...currentRegion,
             latitude: e.nativeEvent.coordinate.latitude,
             longitude: e.nativeEvent.coordinate.longitude,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          });
+          }));
           handleMapPress(e);
         }}
         region={
           region || {
-            latitude: 0,
-            longitude: 0,
+            latitude: 33.57880468714996,
+            longitude: -7.643518187105656,
             latitudeDelta: 0.1,
             longitudeDelta: 0.1,
           }}
@@ -325,6 +361,7 @@ export default function ({ navigation }) {
         </TouchableOpacity>
       </View>
 
+
       <Modal
         animationType="slide"
         transparent={false}
@@ -337,146 +374,205 @@ export default function ({ navigation }) {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <Text style={styles.modalTitle}>Ajouter une annonce</Text>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Intermediaire ID:</Text>
-                <TextInput
-                  placeholder="ID"
-                  style={styles.input2}
-                  onChangeText={setIntermediaire_id}
-                  value={intermediaire_id.toString()}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Delai:</Text>
-                <TextInput
-                  placeholder="Delai"
-                  style={styles.input2}
-                  onChangeText={(value) => setDelai(Number(value))}
-                  value={delai.toString()}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Prix:</Text>
-                <TextInput
-                  style={styles.input2}
-                  placeholder="Prix"
-                  value={prix_bien.toString()}
-                  onChangeText={setPrix_bien}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Surface:</Text>
-                <TextInput
-                  style={styles.input2}
-                  placeholder="Surface_bien"
-                  value={surface.toString()}
-                  onChangeText={setSurface}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Type de bien:</Text>
-                <Picker
-                  selectedValue={type_bien}
-                  onValueChange={(itemValue) => setType_bien(itemValue)}
-                  style={styles.input}
-                >
-                  <Picker.Item label="MAISON" value="MAISON" color="#0000FF" />
-                  <Picker.Item label="VILLA" value="VILLA" color="#008000" />
-                  <Picker.Item label="APPARTEMENT" value="APPARTEMENT" color="#FFA500" />
-                </Picker>
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Type d'opération:</Text>
-                <Picker
-                  selectedValue={type_operation}
-                  onValueChange={(itemValue) => setType_operation(itemValue)}
-                  style={styles.input}
-                >
-                  <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
-                  <Picker.Item label="LOUER" value="LOUER" color="#008000" />
-                </Picker>
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Etat:</Text>
-                <Picker
-                  selectedValue={etat}
-                  onValueChange={(itemValue) => setEtat(itemValue)}
-                  style={styles.input}
-                >
-                  <Picker.Item label="NULL" value="" color="#FFA500" />
-                  <Picker.Item label="PUBLIEE" value="PUBLIEE" color="#0000FF" />
-                  <Picker.Item label="REJETER" value="REJETER" color="#008000" />
-                </Picker>
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Statut:</Text>
-                <Picker
-                  selectedValue={statut}
-                  onValueChange={(itemValue) => setStatut(itemValue)}
-                  style={styles.input}
-                >
-                  <Picker.Item label="RESERVEE" value="RESERVEE" color="#0000FF" />
-                  <Picker.Item label="EN_ATTENTE" value="EN_ATTENTE" color="#008000" />
-                </Picker>
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Motif de rejet:</Text>
-                <TextInput
-                  placeholder="Motif_rejet"
-                  style={styles.input2}
-                  onChangeText={setMotif_rejet}
-                  value={motif_rejet}
-                />
-              </View>
-              <TextInput
-                style={[styles.inputDescription, { height: 100, width: 300 }]}
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-                numberOfLines={4}
-              />
 
-              <TouchableOpacity
-                style={[styles.buttonText1, { width: '53%' }]}
-                onPress={pickImage}
+              <Formik
+                initialValues={{
+                  type_bien: '',
+                  type_operation: '',
+                  surface: '',
+                  prix_bien: '',
+                  description: '',
+                }}
+                onSubmit={handleSubmit}
+                validate={values => {
+                  const errors = {};
+
+                  if (!values.type_bien) {
+                    errors.type_bien = 'Required';
+                  }
+
+                  if (!values.type_operation) {
+                    errors.type_operation = 'Required';
+                  }
+
+                  if (!values.surface) {
+                    errors.surface = 'Required';
+                  } else if (isNaN(values.surface)) {
+                    errors.surface = 'Must be a number';
+                  }
+
+                  if (!values.prix_bien) {
+                    errors.prix_bien = 'Required';
+                  } else if (isNaN(values.prix_bien)) {
+                    errors.prix_bien = 'Must be a number';
+                  }
+
+                  // Add more validation as needed
+
+                  return errors;
+                }}
               >
-                <Text style={styles.textStyle1}>Choisir une image</Text>
-              </TouchableOpacity>
+                {({ handleChange, handleBlur, handleSubmit, values, errors, isSubmitting }) => (
+                  <>
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.label}>Type de bien:</Text>
+                      <Field
+                        name="type_bien"
+                        as={Picker}
+                        selectedValue={values.type_bien}
+                        onValueChange={handleChange('type_bien')}
+                        onBlur={handleBlur('type_bien')}
+                        style={styles.input}
+                      >
+                        <Picker.Item label="Select Type de bien" value="" />
+                        <Picker.Item label="MAISON" value="MAISON" color="#0000FF" />
+                        <Picker.Item label="VILLA" value="VILLA" color="#008000" />
+                        <Picker.Item label="APPARTEMENT" value="APPARTEMENT" color="#FFA500" />
+                      </Field>
+                      {errors.type_bien &&
+                        <View style={styles.errorContainer}>
+                          <Text style={styles.errorText}>{errors.type_bien}</Text>
+                        </View>
+                      }
+                    </View>
 
-              {photo && photo.map((url, index) => (
-                <View key={index} style={{ position: 'relative', marginBottom: 10 }}>
-                  <Image source={{ uri: url }} style={{ width: 200, height: 200 }} />
-                  <TouchableOpacity
-                    style={{ position: 'absolute', right: 0, top: 0 }}
-                    onPress={() => {
-                      setPhoto(oldPhoto => oldPhoto.filter((_, i) => i !== index));
-                    }}
-                  >
-                    <FontAwesome name="times" size={24} color="red" />
-                  </TouchableOpacity>
-                </View>
-              ))}
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.label}>Type d'opération:</Text>
+                      <Field
+                        name="type_operation"
+                        as={Picker}
+                        selectedValue={values.type_operation}
+                        onValueChange={handleChange('type_operation')}
+                        onBlur={handleBlur('type_operation')}
+                        style={styles.input}
+                      >
+                        <Picker.Item label="Select Type d'opération" value="" />
+                        <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
+                        <Picker.Item label="LOUER" value="LOUER" color="#008000" />
+                      </Field>
+                      {errors.type_operation &&
+                        <View style={styles.errorContainer}>
+                          <Text style={styles.errorText}>{errors.type_operation}</Text>
+                        </View>
+                      }
+                    </View>
 
-              <View style={styles.twoButtonContainer}>
-                <TouchableOpacity
-                  style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-                  onPress={handleSubmit}
-                >
-                  <Text style={styles.textStyle}>Ajouter</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ ...styles.openButton, backgroundColor: "#f44336" }}
-                  onPress={handleCancel}
-                >
-                  <Text style={styles.textStyle}>Retourner</Text>
-                </TouchableOpacity>
-              </View>
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.label}>Surface:</Text>
+                      <Field
+                        name="surface"
+                        component={FormikTextInput}
+                        style={styles.input2}
+                        placeholder="Surface_bien"
+                        onBlur={handleBlur('surface')}
+                      />
+                      {errors.surface &&
+                        <View style={styles.errorContainer}>
+                          <Text style={styles.errorText}>{errors.surface}</Text>
+                        </View>
+                      }
+                      <Text style={styles.labelRight}>m²</Text>
+                    </View>
 
+                    <View style={styles.inputContainer}>
+                      <Text style={styles.label}>Prix:</Text>
+                      <Field
+                        name="prix_bien"
+                        component={FormikTextInput}
+                        style={styles.input2}
+                        placeholder="Prix"
+                        onBlur={handleBlur('prix_bien')}
+                      />
+                      {errors.prix_bien &&
+                        <View style={styles.errorContainer}>
+                          <Text style={styles.errorText}>{errors.prix_bien}</Text>
+                        </View>
+                      }
+                      <Text style={styles.labelRight}>Dhs</Text>
+                    </View>
+
+                    <Field
+                      name="description"
+                      component={FormikTextInput}
+                      style={[styles.inputDescription, { height: 100, width: 300 }]}
+                      placeholder="Description"
+                      onBlur={handleBlur('description')}
+                      multiline
+                      numberOfLines={4}
+                    />
+
+                    <TouchableOpacity
+                      style={styles.button2}
+                      onPress={pickDocument}
+                    >
+                      <Text style={styles.buttonText2}>Ajouter un justificatif</Text>
+                    </TouchableOpacity>
+
+                    {documentUri && (
+                      <View style={styles.fileContainer}>
+                        <Text style={styles.fileName}>
+                          Fichier sélectionné: {justificatif_name}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setDocumentUri(null);
+                            setJustificatif_name("");
+                          }}
+                        >
+                          <FontAwesome name="times" size={24} color="red" />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    <TouchableOpacity
+                      style={styles.button2}
+                      onPress={pickImage}
+                    >
+                      <Text style={styles.buttonText2}>Choisir une image</Text>
+                    </TouchableOpacity>
+
+                    {imageUris && imageUris.map((uri, index) => (
+                      <View key={index} style={styles.imageContainer}>
+                        <Image source={{ uri: uri }} style={styles.image} resizeMode="contain" />
+                        <TouchableOpacity
+                          style={styles.imageDeleteButton}
+                          onPress={() => {
+                            setImageUris(oldUris => oldUris.filter((_, i) => i !== index));
+                          }}
+                        >
+                          <FontAwesome name="times" size={24} color="red" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+
+
+                    {isSubmitting ? (
+                      <ActivityIndicator size="large" style={{ margin: 20 }} />
+                    ) : (
+                      <View style={styles.twoButtonContainer}>
+                        <TouchableOpacity
+                          style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+                          onPress={handleSubmit}
+                        >
+                          <Text style={styles.textStyle}>Ajouter</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{ ...styles.openButton, backgroundColor: "#f44336" }}
+                          onPress={handleCancel}
+                        >
+                          <Text style={styles.textStyle}>Retourner</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                  </>
+                )}
+              </Formik>
             </View>
           </View>
         </ScrollView>
       </Modal>
+
 
       {selectedMarker && (
         <Modal
@@ -498,24 +594,35 @@ export default function ({ navigation }) {
               </TouchableOpacity>
 
               <ScrollView style={styles.scrollView}>
-                <Text style={styles.titleText}>ID: {selectedMarker.id}</Text>
+                <Text style={styles.bodyText}>Date: {selectedMarker.date_annonce}</Text>
                 <Text style={styles.bodyText}>Type de bien: {selectedMarker.type_bien}</Text>
-                <Text style={styles.bodyText}>Delai: {selectedMarker.delai} Jour (s)</Text>
-                <Text style={styles.bodyText}>Prix: {selectedMarker.prix_bien} Dhs</Text>
-                <Text style={styles.bodyText}>Surface: {selectedMarker.surface} m²</Text>
                 <Text style={styles.bodyText}>Type d'opération: {selectedMarker.type_operation}</Text>
-                <Text style={styles.bodyText}>Etat: {selectedMarker.etat}</Text>
-                <Text style={styles.bodyText}>Statut: {selectedMarker.statut}</Text>
+                <Text style={styles.bodyText}>Surface: {selectedMarker.surface} m²</Text>
+                <Text style={styles.bodyText}>Prix: {selectedMarker.prix_bien} Dhs</Text>
                 <Text style={styles.bodyText}>Description: {selectedMarker.description}</Text>
 
+                <Text style={styles.bodyText}>Etat: {selectedMarker.etat}</Text>
+                <Text style={styles.bodyText}>Statut: {selectedMarker.statut}</Text>
+                <Text style={styles.bodyText}>Motif de rejet: {selectedMarker.motif_rejet}</Text>
+
+
+                {selectedMarker && selectedMarker.justificatif && (
+                  <TouchableOpacity
+                    style={styles.pdfButton}
+                    onPress={() => Linking.openURL(selectedMarker.justificatif)}
+                  >
+                    <Text style={styles.pdfButtonText}>Open PDF</Text>
+                  </TouchableOpacity>
+                )}
+
                 {selectedMarker.photo && typeof selectedMarker.photo === 'string' && selectedMarker.photo.split(';').map((url, index) => (
-                  <View key={index} style={{ position: 'relative', marginBottom: 10, borderWidth: 2, borderColor: 'black' }}>
-                    <Image source={{ uri: url }} style={{ width: 200, height: 200 }} />
+                  <View key={index} style={styles.imageContainer2}>
+                    <Image source={{ uri: url }} style={styles.image2} />
                   </View>
                 ))}
                 {selectedMarker.photo && Array.isArray(selectedMarker.photo) && selectedMarker.photo.map((url, index) => (
-                  <View key={index} style={{ position: 'relative', marginBottom: 10, borderWidth: 2, borderColor: 'black' }}>
-                    <Image source={{ uri: url }} style={{ width: 200, height: 200 }} />
+                  <View key={index} style={styles.imageContainer2}>
+                    <Image source={{ uri: url }} style={styles.image2} />
                   </View>
                 ))}
 
@@ -562,6 +669,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     padding: 10,
     borderRadius: 5,
+    marginBottom: 10, // Add some bottom margin to all inputs
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -589,6 +697,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     width: 200,
     marginVertical: 10,
+    alignSelf: 'center', // Center the buttons
   },
   textStyle1: {
     color: "white",
@@ -618,6 +727,7 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     marginRight: 40,
     marginTop: 30,
+    alignSelf: 'center', // Center the buttons
   },
   textStyle: {
     color: "white",
@@ -653,6 +763,9 @@ const styles = StyleSheet.create({
   label: {
     marginRight: 10,
   },
+  labelRight: {
+    marginLeft: 10,
+  },
   input2: {
     flex: 1,
     borderWidth: 1,
@@ -662,16 +775,17 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   scrollView: {
-    padding: 10,
+    padding: 20,
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#4CAF50',
   },
   bodyText: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   centeredView: {
     flex: 1,
@@ -681,7 +795,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#F8F8F8',
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
@@ -694,8 +808,100 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  closeText: {
-    fontSize: 20,
+  button3: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    marginBottom: 20
+  },
+  buttonText3: {
+    color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
+  },
+  errorContainer: {
+    margin: 5,
+    padding: 10,
+    backgroundColor: '#f8d7da',
+    borderColor: '#f5c6cb',
+    borderWidth: 1,
+    borderRadius: 5,
+    alignSelf: 'flex-start', // Align error messages to the start
+  },
+  errorText: {
+    color: '#721c24',
+  },
+
+  button2: {
+    backgroundColor: '#2196F3',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10
+  },
+  buttonText2: {
+    color: 'white',
+    textAlign: 'center'
+  },
+  fileContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    padding: 10,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5
+  },
+  fileName: {
+    flex: 1,
+    fontSize: 16
+  },
+  imageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10
+  },
+  image: {
+    width: '100%', // or any desired width
+    height: undefined,
+    aspectRatio: 1, // change this to the desired aspect ratio
+  },
+  imageDeleteButton: {
+    marginLeft: 10
+  },
+  pdfButton: {
+    backgroundColor: 'yellowgreen',
+    padding: 10,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    marginBottom: 20,
+    width: '100%', // Make the button take the full width of the modal
+  },
+  pdfButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center', // Center the text inside the button
+  },
+  imageContainer2: {
+    width: '100%', // Make the image container take the full width of the modal
+    padding: 10,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    alignSelf: 'center',
+  },
+  image2: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain', // Make the image maintain its aspect ratio
+    height: undefined,
+    aspectRatio: 1, // change this to the desired aspect ratio
   },
 });
