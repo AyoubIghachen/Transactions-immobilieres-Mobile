@@ -49,7 +49,7 @@ export default function ({ navigation }) {
 
     const fetchAnnouncementsByFilter = async (filterQuery) => {
         try {
-            const response = await fetch("http://192.168.43.59:3002/annonces/filtre_intermediaire", {
+            const response = await fetch("http://192.168.43.59:3002/annonces/filtre_Annonceur_mobile", {
                 method: "POST", // Use POST method for sending filter queries
                 headers: {
                     "Content-Type": "application/json",
@@ -62,8 +62,15 @@ export default function ({ navigation }) {
             }
 
             let data = await response.json();
-            console.log(data); // Corrected: Replaced comma with semicolon
-            console.log(`Fetched ${data.length} items.`); // Add this line
+
+            console.log(`(1)Fetched ${data.length} items.`);
+
+            // Filter the data by annonceur_id
+            data = data.filter(annonce => annonce.annonceur_id === user.id);
+
+
+            console.log(data);
+            console.log(`(2)Fetched ${data.length} items.`);
 
             // Adjust the structure of the markers
             data = data.map(marker => ({
@@ -85,6 +92,7 @@ export default function ({ navigation }) {
                 intermediaire_id: marker.intermediaire_id,
                 photo: marker.photo,
                 justificatif: marker.justificatif,
+                annonceur_id: marker.annonceur_id,
             }));
 
             setAllAnnonces(data);

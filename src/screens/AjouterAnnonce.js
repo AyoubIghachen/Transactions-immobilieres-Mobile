@@ -25,15 +25,6 @@ export default function ({ navigation }) {
   const [region, setRegion] = useState(null);
   const [addMarker, setAddMarker] = useState(false);
   const [id, setId] = useState(null);
-  const [longitude, setLongitude] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [surface, setSurface] = useState("");
-  const [type_bien, setType_bien] = useState("");
-  const [prix_bien, setPrix_bien] = useState("");
-  const [statut, setStatut] = useState("");
-  const [type_operation, setType_operation] = useState("");
-  const [description, setDescription] = useState("");
-  const [etat, setEtat] = useState("");
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [imageUris, setImageUris] = useState([]);
   const [documentUris, setDocumentUris] = useState([]);
@@ -163,8 +154,6 @@ export default function ({ navigation }) {
           latitude: region.latitude,
           longitude: region.longitude,
           justificatif: documentUrls ? documentUrls.join(';') : null,
-          statut: "EN_ATTENTE",
-          etat: "NULL",
         }),
       });
 
@@ -184,7 +173,7 @@ export default function ({ navigation }) {
             statut: "EN_ATTENTE",
             type_operation: values.type_operation,
             description: values.description,
-            etat: "NULL",
+            etat: "PAS_ENCORE_TRAITEE",
             photo: photoUrls ? photoUrls.join(';') : null,
             justificatif: documentUrls ? documentUrls.join(';') : null,
           };
@@ -214,15 +203,6 @@ export default function ({ navigation }) {
 
   const handleCancel = () => {
     setId(null);
-    setLongitude("");
-    setLatitude("");
-    setSurface("");
-    setType_bien("");
-    setPrix_bien("");
-    setStatut("");
-    setType_operation("");
-    setDescription("");
-    setEtat("");
     setVisible(false);
     setAddMarker(false);
 
