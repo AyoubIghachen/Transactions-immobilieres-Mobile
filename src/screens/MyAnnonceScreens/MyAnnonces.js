@@ -84,6 +84,7 @@ export default function ({ navigation }) {
                 etat: marker.etat,
                 intermediaire_id: marker.intermediaire_id,
                 photo: marker.photo,
+                justificatif: marker.justificatif,
             }));
 
             setAllAnnonces(data);
@@ -170,7 +171,7 @@ export default function ({ navigation }) {
             fetchPropertyTypes();
             fetchOperationTypes();
 
-           // fetchAnnouncementsByFilter(filterValues);
+            // fetchAnnouncementsByFilter(filterValues);
 
             fetchAnnouncements();
             getLocation();
@@ -191,9 +192,7 @@ export default function ({ navigation }) {
 
     const fetchAnnouncements = async () => {
         try {
-            const annonceur_id = user.id;
-            console.log(annonceur_id);
-            const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${annonceur_id}`);
+            const response = await fetch(`http://192.168.43.59:3002/annonces/Annonceur/${user.id}`);
 
             let data = await response.json();
 
@@ -219,6 +218,7 @@ export default function ({ navigation }) {
                 etat: marker.etat,
                 intermediaire_id: marker.intermediaire_id,
                 photo: marker.photo,
+                justificatif: marker.justificatif,
             }));
 
             setAllAnnonces(data);

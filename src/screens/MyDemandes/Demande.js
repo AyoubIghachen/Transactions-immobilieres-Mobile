@@ -84,6 +84,7 @@ export default function ({ navigation }) {
                 etat: marker.etat,
                 intermediaire_id: marker.intermediaire_id,
                 photo: marker.photo,
+                justificatif: marker.justificatif,
             }));
 
             setAllAnnonces(data);
@@ -218,6 +219,7 @@ export default function ({ navigation }) {
                 etat: marker.annonce.etat,
                 intermediaire_id: marker.annonce.intermediaire_id,
                 photo: marker.annonce.photo,
+                justificatif: marker.annonce.justificatif,
             }));
 
             setAllAnnonces(data);

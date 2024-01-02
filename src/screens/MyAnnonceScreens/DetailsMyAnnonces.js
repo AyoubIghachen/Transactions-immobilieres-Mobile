@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { Alert, Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import Modal from "react-native-modal";
+import * as Linking from 'expo-linking';
+import { useEffect, useState } from "react";
+import { Alert, Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import Modal from "react-native-modal";
 import Icon from 'react-native-vector-icons/Ionicons';
 
 
@@ -63,7 +64,7 @@ function DetailsMyAnnonces({ route, navigation }) {
         navigation.navigate('EditAnnonce', { annonce }); // navigate to the edit screen with the current annonce
     };
 
-    const images = annonce.photo && typeof annonce.photo === 'string' ? annonce.photo.split(';').map(url => ({ url })) : [];
+    const images = annonce.photo ? annonce.photo.split(';').map(url => ({ url })) : [];
 
     return (
         <View style={styles.container}>
@@ -79,7 +80,29 @@ function DetailsMyAnnonces({ route, navigation }) {
                     <Text>Surface: {annonce.surface} m²</Text>
                     <Text>Type d'opération: {annonce.type_operation}</Text>
                     <Text>Description: {annonce.description}</Text>
-                    {annonce.photo && typeof annonce.photo === 'string' && annonce.photo.split(';').map((url, index) => (
+
+                    {annonce.justificatif && (annonce.justificatif.split(';').map((url, index) => {
+                        // Split the URL by slashes and get the last part
+                        const urlParts = url.split('/');
+                        const fileNameWithTimestamp = urlParts[urlParts.length - 1];
+
+                        // Split the file name by underscore and remove the last part (timestamp)
+                        const fileNameParts = fileNameWithTimestamp.split('_');
+                        fileNameParts.pop();
+                        const fileName = decodeURIComponent(fileNameParts.join('_')); // Decode URL-encoded characters
+
+                        return (
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.pdfButton}
+                                onPress={() => Linking.openURL(url)}
+                            >
+                                <Text style={styles.pdfButtonText}>Open {fileName}</Text>
+                            </TouchableOpacity>
+                        );
+                    }))}
+
+                    {annonce.photo && annonce.photo.split(';').map((url, index) => (
                         <TouchableOpacity key={index} onPress={() => { setImageViewerVisible(true); setCurrentImageIndex(index); }}>
                             <Image source={{ uri: url }} style={styles.image} />
                         </TouchableOpacity>
@@ -146,6 +169,23 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
         borderRadius: 10,
         marginTop: 10,
+    },
+
+    pdfButton: {
+        backgroundColor: 'yellowgreen',
+        padding: 10,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 2,
+        marginBottom: 20,
+        width: '100%', // Make the button take the full width of the modal
+    },
+    pdfButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center', // Center the text inside the button
     },
 });
 

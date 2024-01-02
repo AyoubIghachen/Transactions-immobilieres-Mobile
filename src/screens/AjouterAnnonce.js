@@ -1,7 +1,11 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
+import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Linking from 'expo-linking';
 import * as Location from 'expo-location';
+import { Field, Formik } from 'formik';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import MapView from "react-native-map-clustering";
@@ -9,13 +13,6 @@ import { Marker } from "react-native-maps";
 import { Layout } from 'react-native-rapi-ui';
 import AuthContext from '../AuthContext';
 import { firebase } from '../config';
-
-import { LinearGradient } from 'expo-linear-gradient';
-
-import * as DocumentPicker from 'expo-document-picker';
-import * as Linking from 'expo-linking';
-
-import { Field, Formik } from 'formik';
 
 
 
@@ -38,14 +35,23 @@ export default function ({ navigation }) {
   const [description, setDescription] = useState("");
   const [etat, setEtat] = useState("");
   const [selectedMarker, setSelectedMarker] = useState(null);
-  const [justificatif_name, setJustificatif_name] = useState("");
   const [imageUris, setImageUris] = useState([]);
-  const [documentUri, setDocumentUri] = useState(null);
+  const [documentUris, setDocumentUris] = useState([]);
+  const [justificatif_names, setJustificatif_names] = useState([]);
 
   useEffect(() => {
     fetchAnnouncements();
     getLocation();
-  }, []);
+
+    navigation.setOptions({
+      headerTitle: "Ajouter une annonce",
+      headerStyle: {
+        backgroundColor: '#fff',
+      },
+      headerTintColor: '#333',
+    });
+  }, [navigation]);
+
 
   const fetchAnnouncements = async () => {
     try {
@@ -131,17 +137,19 @@ export default function ({ navigation }) {
       }));
 
 
-      // Upload the document
-      let url = null;
-      if (documentUri) {
-        const response = await fetch(documentUri);
+      // Upload the documents
+      const documentUrls = await Promise.all(documentUris.map(async (uri, index) => {
+        const response = await fetch(uri);
         const blob = await response.blob();
 
-        const ref = firebase.storage().ref().child(new Date().getTime().toString());
+        // Append a timestamp to the document name to make it unique
+        const uniqueDocumentName = `${justificatif_names[index]}_${new Date().getTime()}`;
+
+        const ref = firebase.storage().ref().child(uniqueDocumentName);
         const snapshot = await ref.put(blob);
 
-        url = await snapshot.ref.getDownloadURL();
-      }
+        return await snapshot.ref.getDownloadURL();
+      }));
 
       const response = await fetch(`http://192.168.43.59:3002/annonces/${user.id}`, {
         method: 'POST',
@@ -154,7 +162,7 @@ export default function ({ navigation }) {
           photo: photoUrls ? photoUrls.join(';') : null,
           latitude: region.latitude,
           longitude: region.longitude,
-          justificatif: url,
+          justificatif: documentUrls ? documentUrls.join(';') : null,
           statut: "EN_ATTENTE",
           etat: "NULL",
         }),
@@ -177,8 +185,8 @@ export default function ({ navigation }) {
             type_operation: values.type_operation,
             description: values.description,
             etat: "NULL",
-            photo: photoUrls,
-            justificatif: url,
+            photo: photoUrls ? photoUrls.join(';') : null,
+            justificatif: documentUrls ? documentUrls.join(';') : null,
           };
           // Add the new marker to the markers
           setMarkers([...markers, newMarker]);
@@ -215,11 +223,12 @@ export default function ({ navigation }) {
     setType_operation("");
     setDescription("");
     setEtat("");
-    setImageUris([]);
-    setDocumentUri(null);
     setVisible(false);
     setAddMarker(false);
-    setJustificatif_name("");
+
+    setImageUris([]);
+    setDocumentUris([]);
+    setJustificatif_names([]);
   };
 
 
@@ -242,8 +251,11 @@ export default function ({ navigation }) {
     let result = await DocumentPicker.getDocumentAsync({});
 
     if (result.type !== 'cancel') {
-      setDocumentUri(result.assets[0].uri); // Store the local URI
-      setJustificatif_name(result.assets[0].name);
+      // Sanitize the document name by replacing invalid characters with underscores
+      const sanitizedDocumentName = result.assets[0].name.replace(/[\/#%]/g, '_');
+
+      setDocumentUris(oldUris => [...oldUris, result.assets[0].uri]); // Store the local URIs
+      setJustificatif_names(oldNames => [...oldNames, sanitizedDocumentName]);
     }
   };
 
@@ -508,21 +520,21 @@ export default function ({ navigation }) {
                       <Text style={styles.buttonText2}>Ajouter un justificatif</Text>
                     </TouchableOpacity>
 
-                    {documentUri && (
-                      <View style={styles.fileContainer}>
+                    {documentUris && documentUris.map((uri, index) => (
+                      <View key={index} style={styles.fileContainer}>
                         <Text style={styles.fileName}>
-                          Fichier sélectionné: {justificatif_name}
+                          Fichier sélectionné: {justificatif_names[index]}
                         </Text>
                         <TouchableOpacity
                           onPress={() => {
-                            setDocumentUri(null);
-                            setJustificatif_name("");
+                            setDocumentUris(oldUris => oldUris.filter((_, i) => i !== index));
+                            setJustificatif_names(oldNames => oldNames.filter((_, i) => i !== index));
                           }}
                         >
                           <FontAwesome name="times" size={24} color="red" />
                         </TouchableOpacity>
                       </View>
-                    )}
+                    ))}
 
                     <TouchableOpacity
                       style={styles.button2}
@@ -606,21 +618,29 @@ export default function ({ navigation }) {
                 <Text style={styles.bodyText}>Motif de rejet: {selectedMarker.motif_rejet}</Text>
 
 
-                {selectedMarker && selectedMarker.justificatif && (
-                  <TouchableOpacity
-                    style={styles.pdfButton}
-                    onPress={() => Linking.openURL(selectedMarker.justificatif)}
-                  >
-                    <Text style={styles.pdfButtonText}>Open PDF</Text>
-                  </TouchableOpacity>
-                )}
+                {selectedMarker.justificatif && (selectedMarker.justificatif.split(';').map((url, index) => {
+                  // Split the URL by slashes and get the last part
+                  const urlParts = url.split('/');
+                  const fileNameWithTimestamp = urlParts[urlParts.length - 1];
 
-                {selectedMarker.photo && typeof selectedMarker.photo === 'string' && selectedMarker.photo.split(';').map((url, index) => (
-                  <View key={index} style={styles.imageContainer2}>
-                    <Image source={{ uri: url }} style={styles.image2} />
-                  </View>
-                ))}
-                {selectedMarker.photo && Array.isArray(selectedMarker.photo) && selectedMarker.photo.map((url, index) => (
+                  // Split the file name by underscore and remove the last part (timestamp)
+                  const fileNameParts = fileNameWithTimestamp.split('_');
+                  fileNameParts.pop();
+                  const fileName = decodeURIComponent(fileNameParts.join('_')); // Decode URL-encoded characters
+
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.pdfButton}
+                      onPress={() => Linking.openURL(url)}
+                    >
+                      <Text style={styles.pdfButtonText}>Open {fileName}</Text>
+                    </TouchableOpacity>
+                  );
+                }))}
+
+
+                {selectedMarker.photo && selectedMarker.photo.split(';').map((url, index) => (
                   <View key={index} style={styles.imageContainer2}>
                     <Image source={{ uri: url }} style={styles.image2} />
                   </View>
