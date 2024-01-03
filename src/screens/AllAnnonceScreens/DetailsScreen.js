@@ -1,15 +1,15 @@
-import { useState, useEffect, useContext } from "react";
-import AuthContext from '../../AuthContext';
-import { Button, Text, Image, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import Modal from "react-native-modal";
+import { useContext, useEffect, useState } from "react";
+import { Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
+import Modal from "react-native-modal";
 import Icon from 'react-native-vector-icons/Ionicons';
+import AuthContext from '../../AuthContext';
 // import AnnonceCard from "../../components/utils/AnnonceCard";
 
 
 function DetailsScreen({ route, navigation }) {
     const { user } = useContext(AuthContext);
-    
+
     useEffect(() => {
         navigation.setOptions({
             headerTitle: 'Détails de l\'annonce',
@@ -39,18 +39,26 @@ function DetailsScreen({ route, navigation }) {
             });
 
             if (!demandeResponse.ok) {
-                throw new Error('Network response was not ok');
+                let errorMessage = 'Network response was not ok';
+
+                if (demandeResponse.status === 400) {
+                    errorMessage = 'Vous avez déjà demandé cette annonce !';
+                } else if (demandeResponse.status === 500) {
+                    errorMessage = 'Internal Server Error';
+                }
+
+                throw new Error(errorMessage);
             }
 
-            alert('Demande sent successfully');
+            alert('La demande a été envoyée avec succès.');
             navigation.goBack();
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to send demande');
+            alert(error.message);
         }
     };
 
-    const images = annonce.photo && typeof annonce.photo === 'string' ? annonce.photo.split(';').map(url => ({ url })) : [];
+    const images = annonce.photo ? annonce.photo.split(';').map(url => ({ url })) : [];
 
     return (
         <View style={styles.container}>
@@ -66,7 +74,7 @@ function DetailsScreen({ route, navigation }) {
                     <Text>Etat: {annonce.etat}</Text>
                     <Text>Statut: {annonce.statut}</Text>
                     <Text>Description: {annonce.description}</Text>
-                    {annonce.photo && typeof annonce.photo === 'string' && annonce.photo.split(';').map((url, index) => (
+                    {annonce.photo && annonce.photo.split(';').map((url, index) => (
                         <TouchableOpacity key={index} onPress={() => { setImageViewerVisible(true); setCurrentImageIndex(index); }}>
                             <Image source={{ uri: url }} style={styles.image} />
                         </TouchableOpacity>
@@ -74,7 +82,7 @@ function DetailsScreen({ route, navigation }) {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    <Button title="Demander" onPress={handleDemander} color="#841584" />
+                    {user.id !== annonce.annonceur_id && <Button title="Demander" onPress={handleDemander} color="#841584" />}
                     <Button title="Retourner" onPress={() => navigation.goBack()} color="#841584" />
                 </View>
             </ScrollView>

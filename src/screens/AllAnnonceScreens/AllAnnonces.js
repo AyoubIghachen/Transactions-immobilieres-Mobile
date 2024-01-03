@@ -36,7 +36,7 @@ export default function ({ navigation }) {
 
   const fetchAnnouncementsByFilter = async (filterQuery) => {
     try {
-      const response = await fetch("http://192.168.43.59:3002/annonces/filtre_intermediaire", {
+      const response = await fetch("http://192.168.43.59:3002/annonces/filtre_annonce_publiee_mobile", {
         method: "POST", // Use POST method for sending filter queries
         headers: {
           "Content-Type": "application/json",
@@ -71,6 +71,7 @@ export default function ({ navigation }) {
         etat: marker.etat,
         intermediaire_id: marker.intermediaire_id,
         photo: marker.photo,
+        annonceur_id: marker.annonceur_id,
       }));
 
       setAllAnnonces(data);
@@ -173,9 +174,10 @@ export default function ({ navigation }) {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch("http://192.168.43.59:3002/annonces");
+      const response = await fetch("http://192.168.43.59:3002/annonces/Annonces_publie_include_annonceurid");
       let data = await response.json();
 
+      console.log(data);
       console.log(`Fetched ${data.length} items.`); // Add this line
 
 
@@ -198,6 +200,7 @@ export default function ({ navigation }) {
         etat: marker.etat,
         intermediaire_id: marker.intermediaire_id,
         photo: marker.photo,
+        annonceur_id: marker.annonceur_id,
       }));
 
       setAllAnnonces(data);
