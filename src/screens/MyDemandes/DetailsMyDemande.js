@@ -23,6 +23,11 @@ function DetailsMyDemande({ route, navigation }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleDelete = () => {
+        if (annonce.statut === "RESERVEE") {
+            alert('Suppression est annulée car l\'annonce de cette demande est réservée par un intermédiaire');
+            return;
+        }
+
         Alert.alert(
             "Confirmation",
             "Êtes-vous sûr(e) de vouloir supprimer cette demande ?",
@@ -35,7 +40,7 @@ function DetailsMyDemande({ route, navigation }) {
                 {
                     text: "Yes", onPress: async () => {
                         try {
-                            const deleteResponse = await fetch(`http://192.168.43.59:3002/demandes/${annonce.id}`, {
+                            const deleteResponse = await fetch(`http://192.168.43.59:3002/demandes/${annonce.demande_id}`, {
                                 method: 'DELETE',
                                 headers: {
                                     'Content-Type': 'application/json',

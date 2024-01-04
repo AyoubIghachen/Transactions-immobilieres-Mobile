@@ -1,14 +1,14 @@
 import React, { useContext } from "react";
-import AuthContext from '../AuthContext';
-import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
+	Avatar,
 	Layout,
-	Text,
 	Section,
 	SectionContent,
-	Avatar,
+	Text,
 } from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AuthContext from '../AuthContext';
 
 
 export default function ({ navigation }) {

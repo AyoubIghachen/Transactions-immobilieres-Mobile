@@ -1,15 +1,25 @@
-import { Button, Text, TextInput, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
 import { Picker } from "@react-native-picker/picker";
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 function EditAnnonce({ route, navigation }) {
     const { annonce } = route.params;
     const [type_bien, setType_bien] = useState(annonce.type_bien);
-    const [delai, setDelai] = useState(annonce.delai);
     const [prix_bien, setPrix_bien] = useState(annonce.prix_bien);
     const [surface, setSurface] = useState(annonce.surface);
     const [type_operation, setType_operation] = useState(annonce.type_operation);
     const [description, setDescription] = useState(annonce.description);
+
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerTitle: 'Editer l\'annonce',
+            headerStyle: {
+                backgroundColor: '#fff',
+            },
+            headerTintColor: '#333',
+        });
+    }, [navigation]);
 
 
     const handleSubmit = async () => {
@@ -22,7 +32,6 @@ function EditAnnonce({ route, navigation }) {
                 },
                 body: JSON.stringify({
                     type_bien,
-                    delai,
                     prix_bien,
                     surface,
                     type_operation,
@@ -62,13 +71,15 @@ function EditAnnonce({ route, navigation }) {
                             </Picker>
                         </View>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Delai:</Text>
-                            <TextInput
-                                placeholder="Delai"
-                                style={styles.input2}
-                                onChangeText={(value) => setDelai(Number(value))}
-                                value={delai.toString()}
-                            />
+                            <Text style={styles.label}>Type d'opération:</Text>
+                            <Picker
+                                selectedValue={type_operation}
+                                onValueChange={(itemValue) => setType_operation(itemValue)}
+                                style={styles.input}
+                            >
+                                <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
+                                <Picker.Item label="LOUER" value="LOUER" color="#008000" />
+                            </Picker>
                         </View>
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Prix:</Text>
@@ -87,17 +98,6 @@ function EditAnnonce({ route, navigation }) {
                                 value={surface.toString()}
                                 onChangeText={setSurface}
                             />
-                        </View>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Type d'opération:</Text>
-                            <Picker
-                                selectedValue={type_operation}
-                                onValueChange={(itemValue) => setType_operation(itemValue)}
-                                style={styles.input}
-                            >
-                                <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
-                                <Picker.Item label="LOUER" value="LOUER" color="#008000" />
-                            </Picker>
                         </View>
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Description:</Text>

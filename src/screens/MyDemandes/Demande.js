@@ -72,6 +72,7 @@ export default function ({ navigation }) {
                 intermediaire_id: marker.annonce.intermediaire_id,
                 photo: marker.annonce.photo,
                 justificatif: marker.annonce.justificatif,
+                demande_id: marker.id,
             }));
 
             setAllAnnonces(data);

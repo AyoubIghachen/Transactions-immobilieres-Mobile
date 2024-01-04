@@ -407,12 +407,12 @@ export default function ({ navigation }) {
 
 
       <Modal isVisible={isModalVisible}>
-        <View style={{ flex: 1, padding: 20 }}>
+        <View style={{ flex: 1, padding: 30 }}>
           <FlatList
             data={[{ key: 'modalContent' }]} // Dummy data
             renderItem={() => (
               <>
-                <Text h4 style={{ marginBottom: 20 }}>
+                <Text h4 style={{ marginBottom: 20, color: 'yellow' }}>
                   Filter Properties
                 </Text>
 

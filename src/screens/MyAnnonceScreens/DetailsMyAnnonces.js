@@ -23,6 +23,11 @@ function DetailsMyAnnonces({ route, navigation }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleDelete = () => {
+        if (annonce.statut === "RESERVEE") {
+            alert('Suppression est annulée car l\'annonce est réservée par un intermédiaire');
+            return;
+        }
+    
         Alert.alert(
             "Confirmation",
             "Are you sure you want to delete this annonce?",
@@ -42,11 +47,11 @@ function DetailsMyAnnonces({ route, navigation }) {
                                     'Accept': 'application/json',
                                 },
                             });
-
+    
                             if (!deleteResponse.ok) {
                                 throw new Error('Network response was not ok');
                             }
-
+    
                             alert('Annonce deleted successfully');
                             navigation.goBack();
                         } catch (error) {
