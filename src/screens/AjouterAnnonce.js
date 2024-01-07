@@ -214,7 +214,7 @@ export default function ({ navigation }) {
           console.error('Invalid region:', region);
         }
         console.log('Announcement added successfully');
-        Alert.alert('Success', 'Announcement added successfully');
+        Alert.alert('Success', 'Annonce ajoutée avec succès');
         resetForm();
 
         handleCancel(); // reset the form fields and close the modal
@@ -331,40 +331,12 @@ export default function ({ navigation }) {
       </MapView>
 
 
-      <View style={{
-        position: 'absolute',
-        bottom: 0,
-        width: '100%',
-        height: 75,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f8f8f8', // Lighter background
-        shadowColor: "#000",
-        shadowOffset: {
-          width: 0,
-          height: -2, // Negative value to lift the shadow up
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        borderTopWidth: 1,
-        borderTopColor: '#ddd', // Lighter border color
-      }}>
+      <View style={styles.viewLocaliser}>
         <TouchableOpacity onPress={() => setAddMarker(!addMarker)}>
           <LinearGradient
-            colors={['#3498db', '#2980b9']}
+            colors={['yellowgreen', 'green']}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-            style={[
-              styles.button,
-              {
-                width: "31%",
-                borderRadius: 25,
-                padding: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }
-            ]}
+            style={styles.button}
           >
             <FontAwesome
               name={addMarker ? "times" : "plus"}
@@ -376,7 +348,7 @@ export default function ({ navigation }) {
                 textShadowRadius: 10, // Shadow blur radius
               }}
             />
-            <Text style={[styles.buttonText, { color: 'white', marginLeft: 10 }]}>
+            <Text style={styles.buttonText}>
               {addMarker ? "Annuler" : "Localiser"}
             </Text>
           </LinearGradient>
@@ -528,7 +500,9 @@ export default function ({ navigation }) {
                       style={styles.button2}
                       onPress={pickDocument}
                     >
-                      <Text style={styles.buttonText2}>Ajouter un justificatif</Text>
+                      <Text style={styles.buttonText2}>
+                        Ajouter un justificatif ({documentUris ? documentUris.length : 0}/5)
+                      </Text>
                     </TouchableOpacity>
 
                     {documentUris && documentUris.map((uri, index) => (
@@ -542,7 +516,7 @@ export default function ({ navigation }) {
                             setJustificatif_names(oldNames => oldNames.filter((_, i) => i !== index));
                           }}
                         >
-                          <FontAwesome name="times" size={24} color="red" />
+                          <FontAwesome name="times" size={24} color="yellowgreen" />
                         </TouchableOpacity>
                       </View>
                     ))}
@@ -551,7 +525,9 @@ export default function ({ navigation }) {
                       style={styles.button2}
                       onPress={pickImage}
                     >
-                      <Text style={styles.buttonText2}>Choisir une image</Text>
+                      <Text style={styles.buttonText2}>
+                        Choisir une image ({imageUris ? imageUris.length : 0}/10)
+                      </Text>
                     </TouchableOpacity>
 
                     {imageUris && imageUris.map((uri, index) => (
@@ -563,7 +539,7 @@ export default function ({ navigation }) {
                             setImageUris(oldUris => oldUris.filter((_, i) => i !== index));
                           }}
                         >
-                          <FontAwesome name="times" size={24} color="red" />
+                          <FontAwesome name="times" size={24} color="yellowgreen" />
                         </TouchableOpacity>
                       </View>
                     ))}
@@ -574,7 +550,7 @@ export default function ({ navigation }) {
                     ) : (
                       <View style={styles.twoButtonContainer}>
                         <TouchableOpacity
-                          style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+                          style={{ ...styles.openButton, backgroundColor: "yellowgreen" }}
                           onPress={handleSubmit}
                         >
                           <Text style={styles.textStyle}>Ajouter</Text>
@@ -609,55 +585,88 @@ export default function ({ navigation }) {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
 
+              <View>
+                <ScrollView style={styles.scrollView}>
+
+                  <View style={styles2.container}>
+                    <View>
+                      <Text style={styles2.title}>Statut: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.statut}</Text>
+                    </View>
+                    <View>
+                      <Text style={styles2.title}>Etat: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.etat}</Text>
+                    </View>
+
+                    {selectedMarker.etat === "REJETER" && (
+                      <View style={styles2.iconTextContainer}>
+                        <Text style={styles2.title2}>Motif de rejet: </Text>
+                        <Text style={styles2.normalText}>{selectedMarker.motif_rejet}</Text>
+                      </View>
+                    )}
+
+                    <View style={styles2.iconTextContainer}>
+                      <Text style={styles2.title2}>Type de bien: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.type_bien}</Text>
+                    </View>
+                    <View style={styles2.iconTextContainer}>
+                      <Text style={styles2.title2}>Operation: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.type_operation}</Text>
+                    </View>
+                    <View style={styles2.iconTextContainer}>
+                      <Text style={styles2.title2}>Surface: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.surface} m²</Text>
+                    </View>
+                    <View style={styles2.iconTextContainer}>
+                      <Text style={styles2.title2}>Prix: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.prix_bien} Dhs</Text>
+                    </View>
+                    <View style={styles2.iconTextContainer}>
+                      <Text style={styles2.title2}>Description: </Text>
+                      <Text style={styles2.normalText}>{selectedMarker.description}</Text>
+                    </View>
+                  </View>
+
+
+                  {selectedMarker.justificatif && (selectedMarker.justificatif.split(';').map((url, index) => {
+                    // Split the URL by slashes and get the last part
+                    const urlParts = url.split('/');
+                    const fileNameWithTimestamp = urlParts[urlParts.length - 1];
+
+                    // Split the file name by underscore and remove the last part (timestamp)
+                    const fileNameParts = fileNameWithTimestamp.split('_');
+                    fileNameParts.pop();
+                    const fileName = decodeURIComponent(fileNameParts.join('_')); // Decode URL-encoded characters
+
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        style={styles.pdfButton}
+                        onPress={() => Linking.openURL(url)}
+                      >
+                        <Text style={styles.pdfButtonText}>{fileName}</Text>
+                      </TouchableOpacity>
+                    );
+                  }))}
+
+
+                  {selectedMarker.photo && selectedMarker.photo.split(';').map((url, index) => (
+                    <View key={index} style={styles.imageContainer2}>
+                      <Image source={{ uri: url }} style={styles.image2} />
+                    </View>
+                  ))}
+
+
+                </ScrollView>
+              </View>
+
               <TouchableOpacity
                 style={{ position: 'absolute', right: 10, top: 10 }}
                 onPress={() => setSelectedMarker(null)}
               >
-                <FontAwesome name="times" size={24} color="red" />
+                <FontAwesome name="times" size={24} color="yellowgreen" />
               </TouchableOpacity>
 
-              <ScrollView style={styles.scrollView}>
-                <Text style={styles.bodyText}>Date: {selectedMarker.date_annonce}</Text>
-                <Text style={styles.bodyText}>Type de bien: {selectedMarker.type_bien}</Text>
-                <Text style={styles.bodyText}>Type d'opération: {selectedMarker.type_operation}</Text>
-                <Text style={styles.bodyText}>Surface: {selectedMarker.surface} m²</Text>
-                <Text style={styles.bodyText}>Prix: {selectedMarker.prix_bien} Dhs</Text>
-                <Text style={styles.bodyText}>Description: {selectedMarker.description}</Text>
-
-                <Text style={styles.bodyText}>Etat: {selectedMarker.etat}</Text>
-                <Text style={styles.bodyText}>Statut: {selectedMarker.statut}</Text>
-
-
-                {selectedMarker.justificatif && (selectedMarker.justificatif.split(';').map((url, index) => {
-                  // Split the URL by slashes and get the last part
-                  const urlParts = url.split('/');
-                  const fileNameWithTimestamp = urlParts[urlParts.length - 1];
-
-                  // Split the file name by underscore and remove the last part (timestamp)
-                  const fileNameParts = fileNameWithTimestamp.split('_');
-                  fileNameParts.pop();
-                  const fileName = decodeURIComponent(fileNameParts.join('_')); // Decode URL-encoded characters
-
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.pdfButton}
-                      onPress={() => Linking.openURL(url)}
-                    >
-                      <Text style={styles.pdfButtonText}>{fileName}</Text>
-                    </TouchableOpacity>
-                  );
-                }))}
-
-
-                {selectedMarker.photo && selectedMarker.photo.split(';').map((url, index) => (
-                  <View key={index} style={styles.imageContainer2}>
-                    <Image source={{ uri: url }} style={styles.image2} />
-                  </View>
-                ))}
-
-
-              </ScrollView>
             </View>
           </View>
         </Modal>
@@ -712,7 +721,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     padding: 10,
     margin: 15,
-    borderRadius: 5,
+    borderRadius: 15,
+    width: "31%",
+    justifyContent: 'center',
   },
   buttonText: {
     color: 'white',
@@ -773,7 +784,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#4CAF50',
+    color: 'yellowgreen',
   },
   fab: {
     position: 'absolute',
@@ -805,7 +816,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   scrollView: {
-    padding: 20,
+    padding: 15,
   },
   titleText: {
     fontSize: 24,
@@ -827,7 +838,7 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: '#F8F8F8',
     borderRadius: 20,
-    padding: 35,
+    padding: 15,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -836,7 +847,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 15,
   },
   button3: {
     backgroundColor: '#4CAF50',
@@ -915,8 +926,8 @@ const styles = StyleSheet.create({
   },
   pdfButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    //fontSize: 18,
+    //fontWeight: 'bold',
     textAlign: 'center', // Center the text inside the button
   },
   imageContainer2: {
@@ -933,5 +944,48 @@ const styles = StyleSheet.create({
     resizeMode: 'contain', // Make the image maintain its aspect ratio
     height: undefined,
     aspectRatio: 1, // change this to the desired aspect ratio
+  },
+  viewLocaliser: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: 75,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f8f8', // Lighter background
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -2, // Negative value to lift the shadow up
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd', // Lighter border color
+  },
+});
+
+
+
+const styles2 = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#f5f5f5',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  title2: {
+    color: 'yellowgreen',
+    fontWeight: 'bold',
+  },
+  normalText: {
+    flexShrink: 1,
+  },
+  iconTextContainer: {
+    flexDirection: 'row',
   },
 });

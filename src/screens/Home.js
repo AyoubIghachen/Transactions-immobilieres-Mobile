@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Linking, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import {
-  Text,
-  SectionContent,
-} from "react-native-rapi-ui";
-import Background from '../screens/AuthScreens/components/Background'
-import Modal from "react-native-modal";
+import { Image, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import ImageViewer from 'react-native-image-zoom-viewer';
+import Modal from "react-native-modal";
+import {
+  SectionContent,
+  Text,
+} from "react-native-rapi-ui";
 import Icon from 'react-native-vector-icons/Ionicons';
+import Background from '../screens/AuthScreens/components/BackgroundAcceuil';
 
 
 export default function ({ navigation }) {
@@ -26,18 +26,22 @@ export default function ({ navigation }) {
 
   // Sample data for photo album
   const photos = [
-    { id: '1', uri: 'https://st2.depositphotos.com/1041088/5192/i/450/depositphotos_51925277-stock-photo-american-house-with-beautiful-landscape.jpg' },
-    { id: '2', uri: 'https://img.freepik.com/free-photo/blue-house-with-blue-roof-sky-background_1340-25953.jpg?size=626&ext=jpg&ga=GA1.1.1803636316.1701216000&semt=ais' },
-    { id: '3', uri: 'https://img.freepik.com/premium-photo/fantasy-house_948605-35.jpg' },
-    { id: '4', uri: 'https://img.freepik.com/premium-photo/fantasy-world-with-bridge-house-it_889779-20.jpg' },
-    { id: '5', uri: 'https://viarami.com/wp-content/uploads/2022/09/fantasy-house-wild-ocean-adventure-6.jpg' },
-    { id: '6', uri: 'https://mygate.com/wp-content/uploads/2023/07/110.jpg' },
-    { id: '7', uri: 'https://cdn.luxe.digital/media/20230123162705/most-expensive-houses-in-the-world-reviews-luxe-digital-1200x600.jpg' },
-    { id: '8', uri: 'https://people.com/thmb/Rq4-T9Jiu-hohH1zxcPFgdeszBQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(780x211:782x213)/barbie-Ken-malibu-Dream-House-Airbnb-tout-e18b10475a30478992ea81a023e8c1be.jpg' },
-    { id: '9', uri: 'https://m.cbhomes.com/p/951/4867176/68F406fcc4d6498/original.jpg' },
-    { id: '10', uri: 'https://i.pinimg.com/originals/19/56/4a/19564a5a312adc8dd0d4d051358106cd.jpg' },
-    { id: '11', uri: 'https://www.weston.org/ImageRepository/Document?documentID=1319' },
-    { id: '12', uri: 'https://cdn.onekindesign.com/wp-content/uploads/2021/08/Colonial-Style-Countryside-Retreat-Chango-Co-01-1-Kindesign.jpg' },
+    { id: '1', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/1704445296747?alt=media&token=a6c7c99b-2a0d-4037-8e3b-9e49f1a8221c' },
+    { id: '2', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/1704408409787?alt=media&token=c8c6bdfd-3c21-4df6-ac48-43e07925e95d' },
+    { id: '3', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/1704406798104?alt=media&token=05cdff38-7a29-4499-8ff2-56557cb28450' },
+    { id: '4', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/1704406798107?alt=media&token=b6b04c9a-0239-40a0-a138-a4b1d4c0626b' },
+    { id: '5', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/41.jpg?alt=media&token=b52713d6-86bb-4c94-903e-09392a866762' },
+    { id: '6', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/46.jpg?alt=media&token=e9504500-255d-445a-a3c0-8f459ccb2cf9' },
+    { id: '7', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/34.jpg?alt=media&token=82a4767d-b690-4103-81d3-35d56182b5d8' },
+    { id: '8', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/37.jpg?alt=media&token=8f0282dd-41b5-4310-8d91-dbf3ee3d191c' },
+    { id: '9', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/47.jpg?alt=media&token=53144fe9-aca9-4a53-8c78-414f56a577c5' },
+    { id: '10', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/43.jpg?alt=media&token=7ff3f6da-d08d-4cd8-a8b6-503059dd6e62' },
+    { id: '11', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/32.jpg?alt=media&token=923fbcd4-4bba-4eba-9d66-decffd0908a9' },
+    { id: '12', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/45.jpg?alt=media&token=0eb9fe53-8a31-4546-8337-4f892a65107d' },
+    { id: '13', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/31.jpg?alt=media&token=2af962f5-e8d0-4c8f-86d9-445410ec3eb2' },
+    { id: '14', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/36.jpg?alt=media&token=f9bfc0d6-ffd7-4baf-a837-5e6aae5ff982' },
+    { id: '15', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/44.jpg?alt=media&token=8a8cdb08-2c47-4803-a591-c00787711830' },
+    { id: '16', uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/42.jpg?alt=media&token=a6422aaa-3821-4ad4-a643-654e76a89ba7' },
   ];
 
   const images = photos.map(photo => ({ url: photo.uri }));
@@ -47,13 +51,10 @@ export default function ({ navigation }) {
       <ScrollView>
         <SectionContent>
           <Text fontWeight="bold" style={styles.title}>
-            Bienvenue dans l'application !
+            Bienvenue sur ImmoTrack !
           </Text>
           <Text style={styles.subtitle}>
-            Voici quelques informations générales sur les transactions immobilières :
-          </Text>
-          <Text>
-            Les transactions immobilières impliquent le transfert des droits de propriété immobilière d'une partie à une autre. Elles peuvent inclure des ventes, des locations, des hypothèques, et plus encore.
+            Que vous soyez un particulier à la recherche de la maison de vos rêves, un investisseur cherchant de nouvelles opportunités, ou un professionnel de l'immobilier, notre plateforme offre une solution complète et intuitive pour simplifier chaque étape du processus immobilier.
           </Text>
           <Text style={styles.subtitle}>
             Consultez notre album photo :
@@ -100,6 +101,7 @@ export default function ({ navigation }) {
 const styles = StyleSheet.create({
   title: {
     textAlign: "center",
+    color: 'yellowgreen'
   },
   subtitle: {
     marginTop: 10,
@@ -112,14 +114,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   photo: {
-    width: 100,
-    height: 100,
+    width: 130,
+    height: 130,
     margin: 5,
   },
   button: {
     marginTop: 10,
     marginBottom: 10,
-    backgroundColor: '#6699cc', // Gray blue color
+    backgroundColor: 'yellowgreen',
     padding: 10, // Add padding to make the button larger
     alignItems: 'center', // Center the text horizontally
   },

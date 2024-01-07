@@ -183,20 +183,20 @@ export default function ({ navigation }) {
                                 <View style={styles.container}>
 
                                     <View style={styles.iconTextContainer}>
-                                        <Text style={{ color: 'green' }}>Type de bien: </Text>
+                                        <Text style={styles.title2}>Type de bien: </Text>
                                         <Text style={styles.normalText}>{item.type_bien}</Text>
                                     </View>
                                     <View style={styles.iconTextContainer}>
-                                        <Text style={{ color: 'green' }}>Operation: </Text>
+                                        <Text style={styles.title2}>Operation: </Text>
                                         <Text style={styles.normalText}>{item.type_operation}</Text>
                                     </View>
 
                                     <View style={styles.iconTextContainer}>
-                                        <Text style={{ color: 'green' }}>Surface: </Text>
+                                        <Text style={styles.title2}>Surface: </Text>
                                         <Text style={styles.normalText}>{item.surface} m²</Text>
                                     </View>
                                     <View style={styles.iconTextContainer}>
-                                        <Text style={{ color: 'green' }}>Prix: </Text>
+                                        <Text style={styles.title2}>Prix: </Text>
                                         <Text style={styles.normalText}>{item.prix_bien} Dhs</Text>
                                     </View>
 
@@ -205,6 +205,9 @@ export default function ({ navigation }) {
                                 <Button
                                     title="Détails"
                                     onPress={() => navigation.navigate('DetailsMyDemande', { annonce: item })}
+                                    buttonStyle={{ backgroundColor: 'yellowgreen' }} // Change the background color
+                                    titleStyle={{ color: 'white' }} // Change the text color
+                                    containerStyle={{ width: '80%', alignSelf: 'center' }} // Change the width and align the button to the center
                                 />
                             </View>
                         </TouchableOpacity>
@@ -275,6 +278,10 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 10,
         marginTop: 10,
+    },
+    title2: {
+        color: 'yellowgreen',
+        fontWeight: 'bold',
     },
     boldText: {
         marginTop: 10,

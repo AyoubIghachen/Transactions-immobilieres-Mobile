@@ -37,13 +37,14 @@ export default function ({ navigation }) {
 				<Section style={styles.section}>
 					<SectionContent style={styles.sectionContent}>
 						<Avatar
-							source={{ uri: 'https://img.freepik.com/premium-photo/portrait-young-handsome-man-glasses_127089-1348.jpg' }}
+							source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/fir-stockagetransactions2.appspot.com/o/20220526_120203.jpg?alt=media&token=b4a6c756-5d58-404b-8e1d-fea47bf352da' }}
 							size="xl"
-							shape="round"
+							shape="rounded"
 							style={styles.avatar}
 						/>
 						<Text style={styles.name}>{user.nom} {user.prenom}</Text>
 						<Text style={styles.email}>{user.email}</Text>
+						<Text style={styles.fonction}>Étudiant en 3ème année filière SI/SIG</Text>
 
 
 						<CustomButton
@@ -52,15 +53,15 @@ export default function ({ navigation }) {
 							}}
 							backgroundColor={'#4682b4'}
 							iconName="pencil"
-							title="Edit Profile"
-							style={{ marginTop: 80 }}
+							title="Editer le profile"
+							style={{ marginTop: 30 }}
 						/>
 
 						<CustomButton
 							onPress={onLogoutPressed}
 							backgroundColor={'#ff6347'}
 							iconName="sign-out"
-							title="Logout"
+							title="Se déconnecter"
 						/>
 
 					</SectionContent>
@@ -103,17 +104,25 @@ const styles = StyleSheet.create({
 		fontSize: 24,
 		fontWeight: 'bold',
 		marginBottom: 5,
+		color: 'yellowgreen'
 	},
 	email: {
+		marginTop: 20,
 		textAlign: "center",
 		fontSize: 16,
 		color: '#666',
 		marginBottom: 20,
 	},
+	fonction: {
+        textAlign: "center",
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 20,
+    },
 	button: {
 		padding: 10,
 		borderRadius: 20,
-		width: '50%',
+		width: '60%',
 		alignSelf: 'center',
 		marginBottom: 20,
 	},

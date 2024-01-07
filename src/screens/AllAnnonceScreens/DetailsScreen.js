@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import Modal from "react-native-modal";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -25,37 +25,54 @@ function DetailsScreen({ route, navigation }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleDemander = async () => {
-        try {
-            const demandeResponse = await fetch('http://192.168.43.59:3002/demandes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+        Alert.alert(
+            "Confirmation",
+            "Êtes-vous certain(e) de vouloir procéder à la demande ?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
                 },
-                body: JSON.stringify({
-                    id_annonce: annonce.id,
-                    id_demmandeur: user.id,
-                })
-            });
+                {
+                    text: "OK",
+                    onPress: async () => {
+                        try {
+                            const demandeResponse = await fetch('http://192.168.43.59:3002/demandes', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    id_annonce: annonce.id,
+                                    id_demmandeur: user.id,
+                                })
+                            });
 
-            if (!demandeResponse.ok) {
-                let errorMessage = 'Network response was not ok';
+                            if (!demandeResponse.ok) {
+                                let errorMessage = 'Network response was not ok';
 
-                if (demandeResponse.status === 400) {
-                    errorMessage = 'Vous avez déjà demandé cette annonce !';
-                } else if (demandeResponse.status === 500) {
-                    errorMessage = 'Internal Server Error';
+                                if (demandeResponse.status === 400) {
+                                    errorMessage = 'Vous avez déjà demandé cette annonce !';
+                                } else if (demandeResponse.status === 500) {
+                                    errorMessage = 'Internal Server Error';
+                                }
+
+                                throw new Error(errorMessage);
+                            }
+
+                            alert('La demande a été transmise avec succès.');
+                            navigation.goBack();
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert(error.message);
+                        }
+                    }
                 }
-
-                throw new Error(errorMessage);
-            }
-
-            alert('La demande a été envoyée avec succès.');
-            navigation.goBack();
-        } catch (error) {
-            console.error('Error:', error);
-            alert(error.message);
-        }
+            ],
+            { cancelable: false }
+        );
     };
 
     const images = annonce.photo ? annonce.photo.split(';').map(url => ({ url })) : [];
@@ -67,32 +84,24 @@ function DetailsScreen({ route, navigation }) {
                 <View style={styles.card}>
 
                     <View style={styles.container}>
-                        <View>
-                            <Text style={styles.title}>Statut: </Text>
-                            <Text style={styles.normalText}>{annonce.statut}</Text>
-                        </View>
-                        <View>
-                            <Text style={styles.title}>Etat: </Text>
-                            <Text style={styles.normalText}>{annonce.etat}</Text>
-                        </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Type de bien: </Text>
+                            <Text style={styles.title2}>Type de bien: </Text>
                             <Text style={styles.normalText}>{annonce.type_bien}</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Operation: </Text>
+                            <Text style={styles.title2}>Operation: </Text>
                             <Text style={styles.normalText}>{annonce.type_operation}</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Surface: </Text>
+                            <Text style={styles.title2}>Surface: </Text>
                             <Text style={styles.normalText}>{annonce.surface} m²</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Prix: </Text>
+                            <Text style={styles.title2}>Prix: </Text>
                             <Text style={styles.normalText}>{annonce.prix_bien} Dhs</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Description: </Text>
+                            <Text style={styles.title2}>Description: </Text>
                             <Text style={styles.normalText}>{annonce.description}</Text>
                         </View>
                     </View>
@@ -106,8 +115,8 @@ function DetailsScreen({ route, navigation }) {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    {user.id !== annonce.annonceur_id && <Button title="Demander" onPress={handleDemander} color="#841584" />}
-                    <Button title="Retourner" onPress={() => navigation.goBack()} color="#841584" />
+                    {user.id !== annonce.annonceur_id && <Button title="Demander" onPress={handleDemander} color="yellowgreen" />}
+                    <Button title="Retourner" onPress={() => navigation.goBack()} color="yellowgreen" />
                 </View>
             </ScrollView>
 
@@ -156,6 +165,10 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 18,
+        fontWeight: 'bold',
+    },
+    title2: {
+        color: 'yellowgreen',
         fontWeight: 'bold',
     },
     image: {

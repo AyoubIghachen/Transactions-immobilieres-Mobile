@@ -22,10 +22,10 @@ function DetailsMyDemande({ route, navigation }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleDelete = () => {
-        if (annonce.statut === "RESERVEE") {
+        /*if (annonce.statut === "RESERVEE") {
             alert('Suppression est annulée car l\'annonce de cette demande est réservée par un intermédiaire');
             return;
-        }
+        }*/
 
         Alert.alert(
             "Confirmation",
@@ -51,7 +51,7 @@ function DetailsMyDemande({ route, navigation }) {
                                 throw new Error('Network response was not ok');
                             }
 
-                            alert('Demande deleted successfully');
+                            alert('Demande supprimée avec succès');
                             navigation.goBack();
                         } catch (error) {
                             console.error('Error:', error);
@@ -73,32 +73,24 @@ function DetailsMyDemande({ route, navigation }) {
                 <View style={styles.card}>
 
                     <View style={styles.container}>
-                        <View>
-                            <Text style={styles.title}>Statut: </Text>
-                            <Text style={styles.normalText}>{annonce.statut}</Text>
-                        </View>
-                        <View>
-                            <Text style={styles.title}>Etat: </Text>
-                            <Text style={styles.normalText}>{annonce.etat}</Text>
-                        </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Type de bien: </Text>
+                            <Text style={styles.title}>Type de bien: </Text>
                             <Text style={styles.normalText}>{annonce.type_bien}</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Operation: </Text>
+                            <Text style={styles.title}>Operation: </Text>
                             <Text style={styles.normalText}>{annonce.type_operation}</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Surface: </Text>
+                            <Text style={styles.title}>Surface: </Text>
                             <Text style={styles.normalText}>{annonce.surface} m²</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Prix: </Text>
+                            <Text style={styles.title}>Prix: </Text>
                             <Text style={styles.normalText}>{annonce.prix_bien} Dhs</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Description: </Text>
+                            <Text style={styles.title}>Description: </Text>
                             <Text style={styles.normalText}>{annonce.description}</Text>
                         </View>
                     </View>
@@ -113,8 +105,8 @@ function DetailsMyDemande({ route, navigation }) {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    <Button title="Supprimer" onPress={handleDelete} color="#841584" />
-                    <Button title="Retourner" onPress={() => navigation.goBack()} color="#841584" />
+                    <Button title="Supprimer" onPress={handleDelete} color="yellowgreen" />
+                    <Button title="Retourner" onPress={() => navigation.goBack()} color="yellowgreen" />
                 </View>
             </ScrollView>
 
@@ -162,7 +154,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     title: {
-        fontSize: 18,
+        color: 'yellowgreen',
         fontWeight: 'bold',
     },
     image: {

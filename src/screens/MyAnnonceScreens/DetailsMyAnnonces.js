@@ -24,13 +24,13 @@ function DetailsMyAnnonces({ route, navigation }) {
 
     const handleDelete = () => {
         if (annonce.statut === "RESERVEE") {
-            alert('Suppression est annulée car l\'annonce est réservée par un intermédiaire');
+            alert('La suppression est annulée, car l\'annonce est actuellement réservée par un intermédiaire');
             return;
         }
 
         Alert.alert(
             "Confirmation",
-            "Are you sure you want to delete this annonce?",
+            "Êtes-vous sûr(e) de vouloir supprimer cette annonce ?",
             [
                 {
                     text: "Annuler",
@@ -52,7 +52,7 @@ function DetailsMyAnnonces({ route, navigation }) {
                                 throw new Error('Network response was not ok');
                             }
 
-                            alert('Annonce deleted successfully');
+                            alert('Annonce supprimée avec succès');
                             navigation.goBack();
                         } catch (error) {
                             console.error('Error:', error);
@@ -89,29 +89,29 @@ function DetailsMyAnnonces({ route, navigation }) {
 
                         {annonce.etat === "REJETER" && (
                             <View style={styles.iconTextContainer}>
-                                <Text style={{ color: 'green' }}>Motif de rejet: </Text>
+                                <Text style={styles.title2}>Motif de rejet: </Text>
                                 <Text style={styles.normalText}>{annonce.motif_rejet}</Text>
                             </View>
                         )}
 
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Type de bien: </Text>
+                            <Text style={styles.title2}>Type de bien: </Text>
                             <Text style={styles.normalText}>{annonce.type_bien}</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Operation: </Text>
+                            <Text style={styles.title2}>Operation: </Text>
                             <Text style={styles.normalText}>{annonce.type_operation}</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Surface: </Text>
+                            <Text style={styles.title2}>Surface: </Text>
                             <Text style={styles.normalText}>{annonce.surface} m²</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Prix: </Text>
+                            <Text style={styles.title2}>Prix: </Text>
                             <Text style={styles.normalText}>{annonce.prix_bien} Dhs</Text>
                         </View>
                         <View style={styles.iconTextContainer}>
-                            <Text style={{ color: 'green' }}>Description: </Text>
+                            <Text style={styles.title2}>Description: </Text>
                             <Text style={styles.normalText}>{annonce.description}</Text>
                         </View>
                     </View>
@@ -146,9 +146,9 @@ function DetailsMyAnnonces({ route, navigation }) {
                 </View>
 
                 <View style={styles.buttonContainer}>
-                    <Button title="Editer" onPress={handleEdit} color="#841584" />
-                    <Button title="Supprimer" onPress={handleDelete} color="#841584" />
-                    <Button title="Retourner" onPress={() => navigation.goBack()} color="#841584" />
+                    <Button title="Editer" onPress={handleEdit} color="yellowgreen" />
+                    <Button title="Supprimer" onPress={handleDelete} color="yellowgreen" />
+                    <Button title="Retourner" onPress={() => navigation.goBack()} color="yellowgreen" />
                 </View>
             </ScrollView>
 
@@ -199,6 +199,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+    title2: {
+        color: 'yellowgreen',
+        fontWeight: 'bold',
+    },
     image: {
         width: '100%',
         height: 200,
@@ -219,8 +223,8 @@ const styles = StyleSheet.create({
     },
     pdfButtonText: {
         color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
+        //fontSize: 18,
+        //fontWeight: 'bold',
         textAlign: 'center', // Center the text inside the button
     },
     normalText: {
