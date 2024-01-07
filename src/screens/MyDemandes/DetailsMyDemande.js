@@ -1,4 +1,3 @@
-import * as Linking from 'expo-linking';
 import { useEffect, useState } from "react";
 import { Alert, Button, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -72,36 +71,39 @@ function DetailsMyDemande({ route, navigation }) {
             <ScrollView>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>ID: {annonce.id}</Text>
-                    <Text>Statut: {annonce.statut}</Text>
-                    <Text>Etat: {annonce.etat}</Text>
-                    <Text>Type de bien: {annonce.type_bien}</Text>
-                    <Text>Delai: {annonce.delai} Jour (s)</Text>
-                    <Text>Prix: {annonce.prix_bien} Dhs</Text>
-                    <Text>Surface: {annonce.surface} m²</Text>
-                    <Text>Type d'opération: {annonce.type_operation}</Text>
-                    <Text>Description: {annonce.description}</Text>
 
-                    {annonce.justificatif && (annonce.justificatif.split(';').map((url, index) => {
-                        // Split the URL by slashes and get the last part
-                        const urlParts = url.split('/');
-                        const fileNameWithTimestamp = urlParts[urlParts.length - 1];
+                    <View style={styles.container}>
+                        <View>
+                            <Text style={styles.title}>Statut: </Text>
+                            <Text style={styles.normalText}>{annonce.statut}</Text>
+                        </View>
+                        <View>
+                            <Text style={styles.title}>Etat: </Text>
+                            <Text style={styles.normalText}>{annonce.etat}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Type de bien: </Text>
+                            <Text style={styles.normalText}>{annonce.type_bien}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Operation: </Text>
+                            <Text style={styles.normalText}>{annonce.type_operation}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Surface: </Text>
+                            <Text style={styles.normalText}>{annonce.surface} m²</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Prix: </Text>
+                            <Text style={styles.normalText}>{annonce.prix_bien} Dhs</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Description: </Text>
+                            <Text style={styles.normalText}>{annonce.description}</Text>
+                        </View>
+                    </View>
 
-                        // Split the file name by underscore and remove the last part (timestamp)
-                        const fileNameParts = fileNameWithTimestamp.split('_');
-                        fileNameParts.pop();
-                        const fileName = decodeURIComponent(fileNameParts.join('_')); // Decode URL-encoded characters
 
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                style={styles.pdfButton}
-                                onPress={() => Linking.openURL(url)}
-                            >
-                                <Text style={styles.pdfButtonText}>Open {fileName}</Text>
-                            </TouchableOpacity>
-                        );
-                    }))}
 
                     {annonce.photo && annonce.photo.split(';').map((url, index) => (
                         <TouchableOpacity key={index} onPress={() => { setImageViewerVisible(true); setCurrentImageIndex(index); }}>
@@ -171,22 +173,12 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
 
-    pdfButton: {
-        backgroundColor: 'yellowgreen',
-        padding: 10,
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 2,
-        marginBottom: 20,
-        width: '100%', // Make the button take the full width of the modal
-      },
-      pdfButtonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: 'bold',
-        textAlign: 'center', // Center the text inside the button
-      },
+    normalText: {
+        flexShrink: 1,
+    },
+    iconTextContainer: {
+        flexDirection: 'row',
+    },
 });
 
 export default DetailsMyDemande;

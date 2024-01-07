@@ -30,7 +30,36 @@ export default function ({ navigation }) {
   const [documentUris, setDocumentUris] = useState([]);
   const [justificatif_names, setJustificatif_names] = useState([]);
 
+  const [propertyTypes, setPropertyTypes] = useState([]);
+  const [operationTypes, setOperationTypes] = useState([]);
+
+  const fetchPropertyTypes = async () => {
+    try {
+      const response = await fetch("http://192.168.43.59:3002/biens");
+      const data1 = await response.json();
+      setPropertyTypes(data1);
+      console.log('propertyTypes: ', data1);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchOperationTypes = async () => {
+    try {
+      const response = await fetch("http://192.168.43.59:3002/operations");
+      const data2 = await response.json();
+      setOperationTypes(data2);
+      console.log('operationTypes: ', data2);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
   useEffect(() => {
+    fetchPropertyTypes();
+    fetchOperationTypes();
+
     fetchAnnouncements();
     getLocation();
 
@@ -60,6 +89,7 @@ export default function ({ navigation }) {
         },
         type_bien: marker.type_bien,
         prix_bien: marker.prix_bien,
+        surface: marker.surface,
         date_annonce: marker.date_annonce,
         statut: marker.statut,
         type_operation: marker.type_operation,
@@ -417,9 +447,9 @@ export default function ({ navigation }) {
                         style={styles.input}
                       >
                         <Picker.Item label="Select Type de bien" value="" />
-                        <Picker.Item label="MAISON" value="MAISON" color="#0000FF" />
-                        <Picker.Item label="VILLA" value="VILLA" color="#008000" />
-                        <Picker.Item label="APPARTEMENT" value="APPARTEMENT" color="#FFA500" />
+                        {propertyTypes.map((item, index) => (
+                          <Picker.Item key={index} label={item.type} value={item.type} />
+                        ))}
                       </Field>
                       {errors.type_bien &&
                         <View style={styles.errorContainer}>
@@ -439,8 +469,9 @@ export default function ({ navigation }) {
                         style={styles.input}
                       >
                         <Picker.Item label="Select Type d'opération" value="" />
-                        <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
-                        <Picker.Item label="LOUER" value="LOUER" color="#008000" />
+                        {operationTypes.map((item, index) => (
+                          <Picker.Item key={index} label={item.type} value={item.type} />
+                        ))}
                       </Field>
                       {errors.type_operation &&
                         <View style={styles.errorContainer}>
@@ -595,7 +626,6 @@ export default function ({ navigation }) {
 
                 <Text style={styles.bodyText}>Etat: {selectedMarker.etat}</Text>
                 <Text style={styles.bodyText}>Statut: {selectedMarker.statut}</Text>
-                <Text style={styles.bodyText}>Motif de rejet: {selectedMarker.motif_rejet}</Text>
 
 
                 {selectedMarker.justificatif && (selectedMarker.justificatif.split(';').map((url, index) => {
@@ -614,7 +644,7 @@ export default function ({ navigation }) {
                       style={styles.pdfButton}
                       onPress={() => Linking.openURL(url)}
                     >
-                      <Text style={styles.pdfButtonText}>Open {fileName}</Text>
+                      <Text style={styles.pdfButtonText}>{fileName}</Text>
                     </TouchableOpacity>
                   );
                 }))}

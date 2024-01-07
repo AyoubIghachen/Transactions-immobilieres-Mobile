@@ -65,15 +65,39 @@ function DetailsScreen({ route, navigation }) {
             <ScrollView>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>ID: {annonce.id}</Text>
-                    <Text>Type de bien: {annonce.type_bien}</Text>
-                    <Text>Delai: {annonce.delai} Jour (s)</Text>
-                    <Text>Prix: {annonce.prix_bien} Dhs</Text>
-                    <Text>Surface: {annonce.surface} m²</Text>
-                    <Text>Type d'opération: {annonce.type_operation}</Text>
-                    <Text>Etat: {annonce.etat}</Text>
-                    <Text>Statut: {annonce.statut}</Text>
-                    <Text>Description: {annonce.description}</Text>
+
+                    <View style={styles.container}>
+                        <View>
+                            <Text style={styles.title}>Statut: </Text>
+                            <Text style={styles.normalText}>{annonce.statut}</Text>
+                        </View>
+                        <View>
+                            <Text style={styles.title}>Etat: </Text>
+                            <Text style={styles.normalText}>{annonce.etat}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Type de bien: </Text>
+                            <Text style={styles.normalText}>{annonce.type_bien}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Operation: </Text>
+                            <Text style={styles.normalText}>{annonce.type_operation}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Surface: </Text>
+                            <Text style={styles.normalText}>{annonce.surface} m²</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Prix: </Text>
+                            <Text style={styles.normalText}>{annonce.prix_bien} Dhs</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Description: </Text>
+                            <Text style={styles.normalText}>{annonce.description}</Text>
+                        </View>
+                    </View>
+
+
                     {annonce.photo && annonce.photo.split(';').map((url, index) => (
                         <TouchableOpacity key={index} onPress={() => { setImageViewerVisible(true); setCurrentImageIndex(index); }}>
                             <Image source={{ uri: url }} style={styles.image} />
@@ -140,6 +164,12 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
         borderRadius: 10,
         marginTop: 10,
+    },
+    iconTextContainer: {
+        flexDirection: 'row',
+    },
+    normalText: {
+        flexShrink: 1,
     },
 });
 

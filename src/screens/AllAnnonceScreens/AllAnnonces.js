@@ -260,8 +260,6 @@ export default function ({ navigation }) {
     fetchAnnouncementsByFilter(filterValues); // Fetch annonces with the filter values
   };
 
-  const [hideResults, setHideResults] = useState(false);
-
 
   const [communeInput, setCommuneInput] = useState('');
   const [communeData, setCommuneData] = useState([]);
@@ -371,7 +369,7 @@ export default function ({ navigation }) {
       <View style={styles.container}>
         <FlatList
           data={annonces}
-          keyExtractor={(item, index) => item.id || String(index)} // Use index as a fallback
+          keyExtractor={(item, index) => item.id || String(index)}
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.5}
           renderItem={({ item }) => (
@@ -386,10 +384,27 @@ export default function ({ navigation }) {
                   }
                 />
 
-                <Text style={styles.normalText}>Type: {item.type_bien}</Text>
-                <Text style={styles.normalText}>Surface: {item.surface} m²</Text>
-                <Text style={styles.normalText}>Prix: {item.prix_bien} Dhs</Text>
-                <Text style={styles.normalText}>Description: {item.description}</Text>
+                <View style={styles.container}>
+
+                  <View style={styles.iconTextContainer}>
+                    <Text style={{ color: 'green' }}>Type de bien: </Text>
+                    <Text style={styles.normalText}>{item.type_bien}</Text>
+                  </View>
+                  <View style={styles.iconTextContainer}>
+                    <Text style={{ color: 'green' }}>Operation: </Text>
+                    <Text style={styles.normalText}>{item.type_operation}</Text>
+                  </View>
+
+                  <View style={styles.iconTextContainer}>
+                    <Text style={{ color: 'green' }}>Surface: </Text>
+                    <Text style={styles.normalText}>{item.surface} m²</Text>
+                  </View>
+                  <View style={styles.iconTextContainer}>
+                    <Text style={{ color: 'green' }}>Prix: </Text>
+                    <Text style={styles.normalText}>{item.prix_bien} Dhs</Text>
+                  </View>
+
+                </View>
 
                 <Button
                   title="Détails"
@@ -400,7 +415,7 @@ export default function ({ navigation }) {
           )}
           initialNumToRender={20}
           maxToRenderPerBatch={20}
-          windowSize={21} // Try increasing this value
+          windowSize={21}
         />
       </View>
 
@@ -592,11 +607,13 @@ export default function ({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    flexDirection: 'column',
+    marginBottom: 10,
+    marginTop: 10,
   },
   card: {
-    padding: 10,
-    margin: 10,
+    padding: 20,
+    margin: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
     shadowColor: '#000',
@@ -609,6 +626,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     borderRadius: 10,
+    marginTop: 10,
   },
   boldText: {
     marginTop: 10,
@@ -616,8 +634,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   normalText: {
-    marginTop: 5,
-    fontSize: 16,
+    fontSize: 15,
   },
 
 
@@ -637,9 +654,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,
-  },
-  icon: {
-    marginRight: 5,
   },
   label: {
     position: "absolute",
@@ -670,5 +684,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+  },
+
+  iconTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    marginRight: 10,
   },
 });

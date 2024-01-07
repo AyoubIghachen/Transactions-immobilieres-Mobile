@@ -27,7 +27,7 @@ function DetailsMyAnnonces({ route, navigation }) {
             alert('Suppression est annulée car l\'annonce est réservée par un intermédiaire');
             return;
         }
-    
+
         Alert.alert(
             "Confirmation",
             "Are you sure you want to delete this annonce?",
@@ -47,11 +47,11 @@ function DetailsMyAnnonces({ route, navigation }) {
                                     'Accept': 'application/json',
                                 },
                             });
-    
+
                             if (!deleteResponse.ok) {
                                 throw new Error('Network response was not ok');
                             }
-    
+
                             alert('Annonce deleted successfully');
                             navigation.goBack();
                         } catch (error) {
@@ -76,15 +76,46 @@ function DetailsMyAnnonces({ route, navigation }) {
             <ScrollView>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>ID: {annonce.id}</Text>
-                    <Text>Statut: {annonce.statut}</Text>
-                    <Text>Etat: {annonce.etat}</Text>
-                    <Text>Type de bien: {annonce.type_bien}</Text>
-                    <Text>Delai: {annonce.delai} Jour (s)</Text>
-                    <Text>Prix: {annonce.prix_bien} Dhs</Text>
-                    <Text>Surface: {annonce.surface} m²</Text>
-                    <Text>Type d'opération: {annonce.type_operation}</Text>
-                    <Text>Description: {annonce.description}</Text>
+
+                    <View style={styles.container}>
+                        <View>
+                            <Text style={styles.title}>Statut: </Text>
+                            <Text style={styles.normalText}>{annonce.statut}</Text>
+                        </View>
+                        <View>
+                            <Text style={styles.title}>Etat: </Text>
+                            <Text style={styles.normalText}>{annonce.etat}</Text>
+                        </View>
+
+                        {annonce.etat === "REJETER" && (
+                            <View style={styles.iconTextContainer}>
+                                <Text style={{ color: 'green' }}>Motif de rejet: </Text>
+                                <Text style={styles.normalText}>{annonce.motif_rejet}</Text>
+                            </View>
+                        )}
+
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Type de bien: </Text>
+                            <Text style={styles.normalText}>{annonce.type_bien}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Operation: </Text>
+                            <Text style={styles.normalText}>{annonce.type_operation}</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Surface: </Text>
+                            <Text style={styles.normalText}>{annonce.surface} m²</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Prix: </Text>
+                            <Text style={styles.normalText}>{annonce.prix_bien} Dhs</Text>
+                        </View>
+                        <View style={styles.iconTextContainer}>
+                            <Text style={{ color: 'green' }}>Description: </Text>
+                            <Text style={styles.normalText}>{annonce.description}</Text>
+                        </View>
+                    </View>
+
 
                     {annonce.justificatif && (annonce.justificatif.split(';').map((url, index) => {
                         // Split the URL by slashes and get the last part
@@ -102,7 +133,7 @@ function DetailsMyAnnonces({ route, navigation }) {
                                 style={styles.pdfButton}
                                 onPress={() => Linking.openURL(url)}
                             >
-                                <Text style={styles.pdfButtonText}>Open {fileName}</Text>
+                                <Text style={styles.pdfButtonText}>{fileName}</Text>
                             </TouchableOpacity>
                         );
                     }))}
@@ -191,6 +222,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         textAlign: 'center', // Center the text inside the button
+    },
+    normalText: {
+        flexShrink: 1,
+    },
+    iconTextContainer: {
+        flexDirection: 'row',
     },
 });
 

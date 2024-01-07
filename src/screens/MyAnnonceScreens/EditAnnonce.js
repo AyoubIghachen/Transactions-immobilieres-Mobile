@@ -10,8 +10,37 @@ function EditAnnonce({ route, navigation }) {
     const [type_operation, setType_operation] = useState(annonce.type_operation);
     const [description, setDescription] = useState(annonce.description);
 
+    const [propertyTypes, setPropertyTypes] = useState([]);
+    const [operationTypes, setOperationTypes] = useState([]);
+
+    const fetchPropertyTypes = async () => {
+        try {
+            const response = await fetch("http://192.168.43.59:3002/biens");
+            const data1 = await response.json();
+            setPropertyTypes(data1);
+            console.log('propertyTypes: ', data1);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const fetchOperationTypes = async () => {
+        try {
+            const response = await fetch("http://192.168.43.59:3002/operations");
+            const data2 = await response.json();
+            setOperationTypes(data2);
+            console.log('operationTypes: ', data2);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
 
     useEffect(() => {
+        fetchPropertyTypes();
+        fetchOperationTypes();
+
+
         navigation.setOptions({
             headerTitle: 'Editer l\'annonce',
             headerStyle: {
@@ -65,9 +94,9 @@ function EditAnnonce({ route, navigation }) {
                                 onValueChange={(itemValue) => setType_bien(itemValue)}
                                 style={styles.input}
                             >
-                                <Picker.Item label="MAISON" value="MAISON" color="#0000FF" />
-                                <Picker.Item label="VILLA" value="VILLA" color="#008000" />
-                                <Picker.Item label="APPARTEMENT" value="APPARTEMENT" color="#FFA500" />
+                                {propertyTypes.map((item, index) => (
+                                    <Picker.Item key={index} label={item.type} value={item.type} />
+                                ))}
                             </Picker>
                         </View>
                         <View style={styles.inputContainer}>
@@ -77,8 +106,9 @@ function EditAnnonce({ route, navigation }) {
                                 onValueChange={(itemValue) => setType_operation(itemValue)}
                                 style={styles.input}
                             >
-                                <Picker.Item label="VENDRE" value="VENDRE" color="#0000FF" />
-                                <Picker.Item label="LOUER" value="LOUER" color="#008000" />
+                                {operationTypes.map((item, index) => (
+                                    <Picker.Item key={index} label={item.type} value={item.type} />
+                                ))}
                             </Picker>
                         </View>
                         <View style={styles.inputContainer}>
