@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "withBottomTabs",
-    "slug": "withBottomTabs",
+    "name": "transaction-immobiliere",
+    "slug": "transaction-immobiliere",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,8 +19,17 @@
     "ios": {
       "supportsTablet": true
     },
+    "android": {
+      "package": "com.yourcompany.yourappname"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2883969b-4c32-4fb4-83ed-2df1e09864b7"
+      }
+    },
+    "owner": "ighachenayoub"
   }
 }
